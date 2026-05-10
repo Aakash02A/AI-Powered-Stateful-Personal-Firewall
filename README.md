@@ -1,50 +1,48 @@
-# 🔥 Personal Firewall for Windows
+# GuardianWeb
 
-A custom-built personal firewall application using **Python** and **Scapy**.  
-It captures, analyzes, and logs network traffic in real-time and allows dynamic IP/port blocking via a simple GUI.
+A cloud-based SOC monitoring and endpoint protection platform.
 
----
+## Architecture
 
-## 📌 Features
+This project has been restructured into a professional Agent-Server architecture so that it can be hosted online and used by many users to test and monitor their systems.
 
-- 🔍 Real-time **packet monitoring**
-- 📁 Logs all traffic (source IP, destination IP, protocol, ports)
-- 🛑 Block any IP or port dynamically via the GUI
-- 🧠 Built using **Scapy + Tkinter**
-- ⚙️ Fully functional on **Windows OS**
+1. **Frontend (`/frontend`)**: A React (Vite) web dashboard where users can view their connected endpoints and monitor threat detections in real-time.
+2. **Backend (`/backend`)**: A FastAPI cloud server that acts as the control plane. It receives telemetry from agents, stores logs, and serves data to the frontend.
+3. **Agent (`/agent`)**: A standalone Python application that users download and run on their local systems. It monitors network traffic, detects threats, and sends data back to the cloud backend.
 
----
+## Quick Start
 
-## 🛠️ Tools & Technologies
+### 1. Start the Backend API
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
 
-- Python 3.x
-- Scapy (packet capture and parsing)
-- Tkinter (GUI framework)
-- WinDivert *(optional for deep packet filtering on Windows)*
+### 2. Start the Frontend Dashboard
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
----
+### 3. Run the Local Agent
+(In a new terminal window)
+```bash
+cd agent
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python agent.py
+```
+*Note: Because the agent uses `scapy` to capture raw network packets, you may need to run it with Administrator privileges.*
 
-## ▶️ How to Run
-
-### 🔧 Prerequisites
-
-- Python 3.8 or later installed
-- Install dependencies:
-  ```bash
-  pip install scapy
-  ```
-
-  ---
-
-## 📖 How It Works
-
-- Captures all IP packets using Scapy’s sniff() function.
-- Each packet is parsed to extract:
-  - Source/Destination IP
-  - Protocol (TCP/UDP)
-  - Source/Destination Port
-- All traffic is logged to logs/traffic_log.txt.
-- Blocked packets are marked as [BLOCKED] in logs.
-- Use the GUI to add IPs or ports to the blocklist in real time.
-
----
+## Deployment
+To host this online:
+1. Deploy the `backend` to a service like AWS, Heroku, or Render.
+2. Update the `API_BASE_URL` in `agent/agent.py` to point to your hosted backend.
+3. Update the `API_URL` in `frontend/src/App.jsx` to point to your hosted backend.
+4. Deploy the `frontend` to a service like Vercel or Netlify.
+5. Provide a download link on your frontend for users to download the `agent.py` script.
