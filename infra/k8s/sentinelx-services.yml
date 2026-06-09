@@ -1,0 +1,512 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telemetry-service
+  namespace: sentinelx
+  labels:
+    app: telemetry
+    component: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: telemetry
+  template:
+    metadata:
+      labels:
+        app: telemetry
+        component: backend
+    spec:
+      containers:
+        - name: telemetry
+          image: ghcr.io/aakash02a/sentinelx/telemetry:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-db-secret
+                  key: url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-redis-secret
+                  key: url
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-app-secret
+                  key: secret-key
+            - name: APP_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: telemetry-service
+  namespace: sentinelx
+spec:
+  selector:
+    app: telemetry
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rule-engine-service
+  namespace: sentinelx
+  labels:
+    app: rule-engine
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rule-engine
+  template:
+    metadata:
+      labels:
+        app: rule-engine
+        component: backend
+    spec:
+      containers:
+        - name: rule-engine
+          image: ghcr.io/aakash02a/sentinelx/rule-engine:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-db-secret
+                  key: url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-redis-secret
+                  key: url
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-app-secret
+                  key: secret-key
+            - name: APP_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rule-engine-service
+  namespace: sentinelx
+spec:
+  selector:
+    app: rule-engine
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-engine-service
+  namespace: sentinelx
+  labels:
+    app: ml-engine
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-engine
+  template:
+    metadata:
+      labels:
+        app: ml-engine
+        component: backend
+    spec:
+      containers:
+        - name: ml-engine
+          image: ghcr.io/aakash02a/sentinelx/ml-engine:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-db-secret
+                  key: url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-redis-secret
+                  key: url
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-app-secret
+                  key: secret-key
+            - name: APP_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-engine-service
+  namespace: sentinelx
+spec:
+  selector:
+    app: ml-engine
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: threat-intel-service
+  namespace: sentinelx
+  labels:
+    app: threat-intel
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: threat-intel
+  template:
+    metadata:
+      labels:
+        app: threat-intel
+        component: backend
+    spec:
+      containers:
+        - name: threat-intel
+          image: ghcr.io/aakash02a/sentinelx/threat-intel:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-db-secret
+                  key: url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-redis-secret
+                  key: url
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-app-secret
+                  key: secret-key
+            - name: APP_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: threat-intel-service
+  namespace: sentinelx
+spec:
+  selector:
+    app: threat-intel
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-engine-service
+  namespace: sentinelx
+  labels:
+    app: alert-engine
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alert-engine
+  template:
+    metadata:
+      labels:
+        app: alert-engine
+        component: backend
+    spec:
+      containers:
+        - name: alert-engine
+          image: ghcr.io/aakash02a/sentinelx/alert-engine:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-db-secret
+                  key: url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-redis-secret
+                  key: url
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-app-secret
+                  key: secret-key
+            - name: APP_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alert-engine-service
+  namespace: sentinelx
+spec:
+  selector:
+    app: alert-engine
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: response-engine-service
+  namespace: sentinelx
+  labels:
+    app: response-engine
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: response-engine
+  template:
+    metadata:
+      labels:
+        app: response-engine
+        component: backend
+    spec:
+      containers:
+        - name: response-engine
+          image: ghcr.io/aakash02a/sentinelx/response-engine:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-db-secret
+                  key: url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-redis-secret
+                  key: url
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-app-secret
+                  key: secret-key
+            - name: APP_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: response-engine-service
+  namespace: sentinelx
+spec:
+  selector:
+    app: response-engine
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-analyst-service
+  namespace: sentinelx
+  labels:
+    app: ai-analyst
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-analyst
+  template:
+    metadata:
+      labels:
+        app: ai-analyst
+        component: backend
+    spec:
+      containers:
+        - name: ai-analyst
+          image: ghcr.io/aakash02a/sentinelx/ai-analyst:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-db-secret
+                  key: url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-redis-secret
+                  key: url
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-app-secret
+                  key: secret-key
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sentinelx-openai-secret
+                  key: api-key
+                  optional: true
+            - name: APP_ENV
+              value: production
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-analyst-service
+  namespace: sentinelx
+spec:
+  selector:
+    app: ai-analyst
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

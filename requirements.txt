@@ -1,4 +1,0 @@
-
-- **Scapy**
-- **Tkinter** (for GUI)
-- **WinDivert** (optional for deeper Windows filtering)
