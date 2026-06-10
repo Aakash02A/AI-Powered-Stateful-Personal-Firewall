@@ -111,8 +111,8 @@ sentinelx/
 
 ### 1. Clone & Configure
 ```bash
-git clone https://github.com/Aakash02A/Personal-Firewall.git
-cd Personal-Firewall
+git clone https://github.com/Aakash02A/sentinelX.git
+cd SentinelX
 make setup          # copies .env.example → .env
 # Edit .env with your API keys
 ```
