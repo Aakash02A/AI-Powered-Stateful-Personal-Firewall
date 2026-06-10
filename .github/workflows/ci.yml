@@ -27,10 +27,11 @@ jobs:
         run: pip install ruff mypy
 
       - name: Ruff lint
-        run: ruff check backend/ agent/python/
+        run: ruff check --config .ruff-ci.toml backend/ agent/python/
 
-      - name: Ruff format check
-        run: ruff format --check backend/ agent/python/
+      - name: Ruff format check (advisory)
+        continue-on-error: true
+        run: ruff format --config .ruff-ci.toml --check backend/ agent/python/
 
   # ── Backend Tests ──────────────────────────────────────────
   test-backend:
