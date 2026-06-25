@@ -1,2 +1,9 @@
 /doc
 /tests
+
+.pytest_cache/
+__pycache__/
+*.db
+*.log
+.coverage
+simulation_output.txt

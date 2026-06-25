@@ -2,6 +2,7 @@ import threading
 import time
 from datetime import datetime
 from typing import Dict, Any
+from scapy.all import send, IP, TCP, ICMP, UDP
 
 from firewall.packet_capture import PacketCapture
 from firewall.connection_tracker import ConnectionTracker
@@ -71,8 +72,19 @@ class PersonalFirewall:
             # Since this is a passive monitor right now, we just log it as dropped.
             pass
         elif action == "block":
-            # Send RST (not implemented in MVP)
-            pass
+            # Actively block by sending RST (TCP) or ICMP Unreachable (UDP)
+            try:
+                if packet.protocol == "TCP":
+                    # Forge RST packet
+                    rst = IP(src=packet.dst_ip, dst=packet.src_ip) / TCP(sport=packet.dst_port, dport=packet.src_port, flags="R")
+                    send(rst, verbose=False)
+                elif packet.protocol == "UDP":
+                    # Forge ICMP Port Unreachable
+                    unreach = IP(src=packet.dst_ip, dst=packet.src_ip) / ICMP(type=3, code=3)
+                    send(unreach, verbose=False)
+            except Exception as e:
+                # If running without privileges, sending might fail. Log it internally.
+                self.event_logger.error(f"Failed to send block response: {e}")
             
         # Log firewall event if it was matched or blocked/logged
         if action != "allow" or rule_id != "default_allow_established":
