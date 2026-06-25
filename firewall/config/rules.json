@@ -1,0 +1,30 @@
+{
+  "rules": [
+    {
+      "rule_id": "default_allow_established",
+      "priority": 10,
+      "enabled": true,
+      "protocol": "any",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "any",
+      "direction": "both",
+      "action": "allow",
+      "description": "Allow established connections"
+    },
+    {
+      "rule_id": "block_ssh_external",
+      "priority": 20,
+      "enabled": true,
+      "protocol": "tcp",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "0.0.0.0/0",
+      "dst_port": "22",
+      "direction": "inbound",
+      "action": "block",
+      "description": "Block SSH from external IPs"
+    }
+  ]
+}
