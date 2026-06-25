@@ -27,7 +27,7 @@ class ConnectionRecord(Base):
     dst_port = Column(Integer)
     protocol = Column(String)
     state = Column(String)
-    start_time = Column(DateTime)
+    creation_time = Column(DateTime)
     end_time = Column(DateTime, nullable=True)
     packets_in = Column(Integer)
     packets_out = Column(Integer)
@@ -114,7 +114,7 @@ class FirewallDatabase:
     
     def query_connections(self, limit: int = 100) -> List[dict]:
         session = self.Session()
-        records = session.query(ConnectionRecord).order_by(ConnectionRecord.start_time.desc()).limit(limit).all()
+        records = session.query(ConnectionRecord).order_by(ConnectionRecord.creation_time.desc()).limit(limit).all()
         result = [r.__dict__ for r in records]
         for r in result:
             r.pop('_sa_instance_state', None)

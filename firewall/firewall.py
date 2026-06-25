@@ -9,6 +9,7 @@ from firewall.rule_engine import RuleEngine
 from firewall.ids_engine import IDSEngine
 from firewall.database import FirewallDatabase
 from firewall.models import FirewallEvent
+from firewall.logger import setup_logger
 
 class PersonalFirewall:
     def __init__(self, config_path: str = "firewall/config/rules.json", db_path: str = "sqlite:///firewall.db"):
@@ -17,6 +18,8 @@ class PersonalFirewall:
         self.connection_tracker = ConnectionTracker()
         self.ids_engine = IDSEngine(self.connection_tracker)
         self.database = FirewallDatabase(db_path=db_path)
+        self.packet_logger = setup_logger("packet_logger", "packets.log")
+        self.event_logger = setup_logger("event_logger", "events.log")
         self.running = False
         
         # Stats
@@ -85,10 +88,28 @@ class PersonalFirewall:
                 reason=rule.description if rule else "No matching rule"
             )
             # Depending on load, might want to batch writes
-            # self.database.log_event(event)
+            self.database.log_event(event)
+            
+            self.event_logger.info(
+                "Firewall Event", 
+                extra={"extra_data": {
+                    "rule_id": event.rule_id, "action": event.action,
+                    "src_ip": event.src_ip, "src_port": event.src_port,
+                    "dst_ip": event.dst_ip, "dst_port": event.dst_port,
+                    "protocol": event.protocol, "reason": event.reason
+                }}
+            )
 
-        # Log packet (optional, can be very heavy)
-        # self.database.log_packet(packet)
+        # Log packet as requested by spec
+        self.database.log_packet(packet)
+        self.packet_logger.info(
+            "Packet captured",
+            extra={"extra_data": {
+                "src_ip": packet.src_ip, "src_port": packet.src_port,
+                "dst_ip": packet.dst_ip, "dst_port": packet.dst_port,
+                "protocol": packet.protocol, "size": packet.size, "flags": packet.flags
+            }}
+        )
 
         # Run IDS
         alerts = self.ids_engine.analyze_packet(packet)

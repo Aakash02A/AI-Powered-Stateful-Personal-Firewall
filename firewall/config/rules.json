@@ -11,11 +11,50 @@
       "dst_port": "any",
       "direction": "both",
       "action": "allow",
-      "description": "Allow established connections"
+      "description": "Allow established connections (managed by state engine)"
+    },
+    {
+      "rule_id": "allow_dns",
+      "priority": 20,
+      "enabled": true,
+      "protocol": "udp",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "53",
+      "direction": "outbound",
+      "action": "allow",
+      "description": "Allow outbound DNS queries"
+    },
+    {
+      "rule_id": "allow_http",
+      "priority": 30,
+      "enabled": true,
+      "protocol": "tcp",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "80",
+      "direction": "outbound",
+      "action": "allow",
+      "description": "Allow outbound HTTP"
+    },
+    {
+      "rule_id": "allow_https",
+      "priority": 40,
+      "enabled": true,
+      "protocol": "tcp",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "443",
+      "direction": "outbound",
+      "action": "allow",
+      "description": "Allow outbound HTTPS"
     },
     {
       "rule_id": "block_ssh_external",
-      "priority": 20,
+      "priority": 50,
       "enabled": true,
       "protocol": "tcp",
       "src_ip": "any",
@@ -25,6 +64,71 @@
       "direction": "inbound",
       "action": "block",
       "description": "Block SSH from external IPs"
+    },
+    {
+      "rule_id": "block_telnet",
+      "priority": 60,
+      "enabled": true,
+      "protocol": "tcp",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "23",
+      "direction": "both",
+      "action": "drop",
+      "description": "Drop Telnet"
+    },
+    {
+      "rule_id": "allow_local_ssh",
+      "priority": 70,
+      "enabled": true,
+      "protocol": "tcp",
+      "src_ip": "192.168.0.0/16",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "22",
+      "direction": "inbound",
+      "action": "allow",
+      "description": "Allow inbound SSH from local network"
+    },
+    {
+      "rule_id": "allow_ping",
+      "priority": 80,
+      "enabled": true,
+      "protocol": "icmp",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "any",
+      "direction": "both",
+      "action": "allow",
+      "description": "Allow ICMP ping"
+    },
+    {
+      "rule_id": "block_suspicious_port_range",
+      "priority": 90,
+      "enabled": true,
+      "protocol": "tcp",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "6660-6669",
+      "direction": "both",
+      "action": "drop",
+      "description": "Drop IRC ports"
+    },
+    {
+      "rule_id": "default_drop",
+      "priority": 999,
+      "enabled": true,
+      "protocol": "any",
+      "src_ip": "any",
+      "src_port": "any",
+      "dst_ip": "any",
+      "dst_port": "any",
+      "direction": "both",
+      "action": "drop",
+      "description": "Default drop rule"
     }
   ]
 }

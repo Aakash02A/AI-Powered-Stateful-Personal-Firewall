@@ -22,7 +22,7 @@ class Connection:
     dst_port: int
     protocol: str
     state: str  # SYN_SENT, ESTABLISHED, FIN_WAIT, CLOSED
-    start_time: datetime
+    creation_time: datetime
     last_activity: datetime
     packets_in: int = 0
     packets_out: int = 0

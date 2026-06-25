@@ -11,12 +11,15 @@ class IDSEngine:
         self.syn_flood_threshold = 50  # SYN packets in 5 seconds
         self.icmp_flood_threshold = 100  # ICMP packets in 5 seconds
         self.brute_force_threshold = 5   # Failed attempts in 30 seconds
+        self.whitelist = {"127.0.0.1"}
 
         # Tracking state
         self.syn_packets = defaultdict(list)
         self.icmp_packets = defaultdict(list)
         self.port_scans = defaultdict(set)
         self.brute_force = defaultdict(list)
+        
+        self.suspicious_ports = {12345: "SSH alternative", 8888: "HTTP alternative", 6667: "IRC"}
 
     def _cleanup_old_records(self, record_dict, time_window: int):
         now = datetime.now()
@@ -33,6 +36,39 @@ class IDSEngine:
                 record_dict[key] = {item for item in record_dict[key] if item[0] > threshold}
                 if not record_dict[key]:
                     del record_dict[key]
+
+    def detect_suspicious_ports(self, packet: Packet) -> Optional[Alert]:
+        if packet.dst_port in self.suspicious_ports:
+            return Alert(
+                alert_type="suspicious_port",
+                severity="low",
+                src_ip=packet.src_ip,
+                dst_ip=packet.dst_ip,
+                description=f"Connection to suspicious port {packet.dst_port} ({self.suspicious_ports[packet.dst_port]})",
+                action_taken="log"
+            )
+        return None
+        
+    def detect_brute_force(self, packet: Packet) -> Optional[Alert]:
+        # Simple heuristic: if we see multiple SYNs to the same target without ESTABLISHED state
+        if packet.protocol != "TCP" or "S" not in packet.flags:
+            return None
+        
+        key = (packet.src_ip, packet.dst_ip, packet.dst_port)
+        self.brute_force[key].append(packet.timestamp)
+        self._cleanup_old_records(self.brute_force, 30)
+        
+        if len(self.brute_force[key]) > self.brute_force_threshold:
+            self.brute_force[key].clear()
+            return Alert(
+                alert_type="brute_force",
+                severity="high",
+                src_ip=packet.src_ip,
+                dst_ip=packet.dst_ip,
+                description=f"Possible brute-force detected from {packet.src_ip} to {packet.dst_ip}:{packet.dst_port}",
+                action_taken="log"
+            )
+        return None
 
     def detect_port_scan(self, packet: Packet) -> Optional[Alert]:
         if packet.protocol != "TCP" or "S" not in packet.flags:
@@ -94,7 +130,9 @@ class IDSEngine:
 
     def analyze_packet(self, packet: Packet) -> List[Alert]:
         alerts = []
-        
+        if packet.src_ip in self.whitelist:
+            return alerts
+            
         alert1 = self.detect_port_scan(packet)
         if alert1: alerts.append(alert1)
         
@@ -103,5 +141,11 @@ class IDSEngine:
         
         alert3 = self.detect_icmp_flood(packet)
         if alert3: alerts.append(alert3)
+        
+        alert4 = self.detect_suspicious_ports(packet)
+        if alert4: alerts.append(alert4)
+        
+        alert5 = self.detect_brute_force(packet)
+        if alert5: alerts.append(alert5)
         
         return alerts

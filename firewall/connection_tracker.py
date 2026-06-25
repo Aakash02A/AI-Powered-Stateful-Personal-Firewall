@@ -38,7 +38,7 @@ class ConnectionTracker:
                 dst_port=packet.dst_port,
                 protocol=packet.protocol,
                 state=state,
-                start_time=now,
+                creation_time=now,
                 last_activity=now,
                 packets_in=0,
                 packets_out=0,
@@ -68,7 +68,12 @@ class ConnectionTracker:
             elif conn.state in ("NEW", "SYN_SENT", "SYN_RECV") and "A" in flags and "S" not in flags:
                 # Catch-all for established connections where we missed the handshake
                 conn.state = "ESTABLISHED"
-            elif "F" in flags or "R" in flags:
+            elif "F" in flags:
+                if conn.state == "ESTABLISHED":
+                    conn.state = "FIN_WAIT"
+                elif conn.state == "FIN_WAIT":
+                    conn.state = "CLOSED"
+            elif "R" in flags:
                 conn.state = "CLOSED"
                 
         return conn

@@ -1,7 +1,16 @@
+import socket
 import ipaddress
 import json
 from typing import List, Tuple, Optional
 from firewall.models import Packet, FirewallRule
+
+def get_local_ips():
+    try:
+        host_name = socket.gethostname()
+        host_ip = socket.gethostbyname(host_name)
+        return [host_ip, "127.0.0.1"]
+    except:
+        return ["127.0.0.1"]
 
 class RuleEngine:
     def __init__(self):
@@ -49,9 +58,18 @@ class RuleEngine:
             if rule.protocol.lower() != "any" and rule.protocol.lower() != packet.protocol.lower():
                 continue
 
-            # Assuming inbound means dst_ip is local, outbound means src_ip is local. 
-            # For simplicity, we just check src/dst regardless of direction for now, 
-            # or rely on the rule specifying exact IPs.
+            # Direction check
+            is_src_local = packet.src_ip in get_local_ips()
+            is_dst_local = packet.dst_ip in get_local_ips()
+            
+            if rule.direction.lower() == "inbound" and not is_dst_local:
+                # For inbound, dst_ip must be local (or we assume it is inbound if src is not local)
+                # To simplify: if it's explicitly inbound, dst is local or src is external
+                continue
+            elif rule.direction.lower() == "outbound" and not is_src_local:
+                # For outbound, src_ip must be local
+                continue
+
             if not self._ip_matches(packet.src_ip, rule.src_ip):
                 continue
             if not self._ip_matches(packet.dst_ip, rule.dst_ip):
