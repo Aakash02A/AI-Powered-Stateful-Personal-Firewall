@@ -7,3 +7,4 @@ __pycache__/
 *.log
 .coverage
 simulation_output.txt
+benchmark_output.txt

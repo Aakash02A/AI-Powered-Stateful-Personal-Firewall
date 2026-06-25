@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, Mapped, mapped_column
 from typing import List, Optional
 from firewall.models import Packet, Connection, FirewallEvent, Alert
 
@@ -8,26 +8,26 @@ Base = declarative_base()
 
 class PacketRecord(Base):
     __tablename__ = 'packets'
-    id = Column(Integer, primary_key=True)
-    timestamp = Column(DateTime)
-    src_ip = Column(String)
-    src_port = Column(Integer)
-    dst_ip = Column(String)
-    dst_port = Column(Integer)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, index=True)
+    src_ip: Mapped[str] = mapped_column(String, index=True)
+    src_port: Mapped[int] = mapped_column(Integer)
+    dst_ip: Mapped[str] = mapped_column(String, index=True)
+    dst_port: Mapped[int] = mapped_column(Integer)
     protocol = Column(String)
     packet_size = Column(Integer)
     flags = Column(String)
 
 class ConnectionRecord(Base):
     __tablename__ = 'connections'
-    id = Column(Integer, primary_key=True)
-    src_ip = Column(String)
-    src_port = Column(Integer)
-    dst_ip = Column(String)
-    dst_port = Column(Integer)
-    protocol = Column(String)
-    state = Column(String)
-    creation_time = Column(DateTime)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    src_ip: Mapped[str] = mapped_column(String, index=True)
+    src_port: Mapped[int] = mapped_column(Integer)
+    dst_ip: Mapped[str] = mapped_column(String, index=True)
+    dst_port: Mapped[int] = mapped_column(Integer)
+    protocol: Mapped[str] = mapped_column(String)
+    state: Mapped[str] = mapped_column(String)
+    creation_time: Mapped[datetime] = mapped_column(DateTime, index=True)
     end_time = Column(DateTime, nullable=True)
     packets_in = Column(Integer)
     packets_out = Column(Integer)
@@ -36,26 +36,26 @@ class ConnectionRecord(Base):
 
 class FirewallEventRecord(Base):
     __tablename__ = 'firewall_events'
-    id = Column(Integer, primary_key=True)
-    timestamp = Column(DateTime)
-    rule_id = Column(String)
-    action = Column(String)
-    src_ip = Column(String)
-    src_port = Column(Integer)
-    dst_ip = Column(String)
-    dst_port = Column(Integer)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, index=True)
+    rule_id: Mapped[str] = mapped_column(String)
+    action: Mapped[str] = mapped_column(String)
+    src_ip: Mapped[str] = mapped_column(String, index=True)
+    src_port: Mapped[int] = mapped_column(Integer)
+    dst_ip: Mapped[str] = mapped_column(String, index=True)
+    dst_port: Mapped[int] = mapped_column(Integer)
     protocol = Column(String)
     reason = Column(String)
 
 class AlertRecord(Base):
     __tablename__ = 'alerts'
-    id = Column(Integer, primary_key=True)
-    timestamp = Column(DateTime)
-    alert_type = Column(String)
-    severity = Column(String)
-    src_ip = Column(String)
-    dst_ip = Column(String)
-    description = Column(String)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, index=True)
+    alert_type: Mapped[str] = mapped_column(String, index=True)
+    severity: Mapped[str] = mapped_column(String)
+    src_ip: Mapped[str] = mapped_column(String, index=True)
+    dst_ip: Mapped[str] = mapped_column(String, index=True)
+    description: Mapped[str] = mapped_column(String)
     action_taken = Column(String)
 
 class FirewallDatabase:
@@ -121,11 +121,13 @@ class FirewallDatabase:
         session.close()
         return result
         
-    def query_alerts(self, severity: str = None, limit: int = 100) -> List[dict]:
+    def query_alerts(self, severity: str = None, alert_type: str = None, limit: int = 100) -> List[dict]:
         session = self.Session()
         query = session.query(AlertRecord)
         if severity:
             query = query.filter(AlertRecord.severity == severity)
+        if alert_type:
+            query = query.filter(AlertRecord.alert_type == alert_type)
         records = query.order_by(AlertRecord.timestamp.desc()).limit(limit).all()
         result = [r.__dict__ for r in records]
         for r in result:
