@@ -129,10 +129,10 @@ def queries(limit):
 @cli.command(name="db-upgrade")
 def db_upgrade():
     """Run database migrations to upgrade schema to latest version"""
-    import subprocess
+    import subprocess  # nosec B404
 
     click.echo("[*] Running Alembic migrations...")
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603 B607
         ["python", "-m", "alembic", "upgrade", "head"], capture_output=True, text=True
     )
     if result.returncode == 0:
