@@ -10,11 +10,15 @@ from firewall.rule_engine import RuleEngine
 from firewall.ids_engine import IDSEngine
 from firewall.database import FirewallDatabase
 from firewall.models import FirewallEvent
-from firewall.logger import setup_logger, log_exceptions
+from firewall.logger import setup_logger, ThreadHealthMonitor
 import logging
 from firewall.queue_manager import QueueManager
 from firewall.db_writer import DBWriter
 from firewall.event_bus import EventBus
+
+class MLPlaceholder:
+    def predict(self, features):
+        return -1, 0.0  # Normal, no anomaly score
 
 class PersonalFirewall:
     def __init__(self, config_path: str = "firewall/config/rules.json", db_path: str = "sqlite:///data/firewall.db"):
@@ -27,6 +31,8 @@ class PersonalFirewall:
         self.db_writer = DBWriter(db_path=db_path)
         self.packet_logger = setup_logger("packet_logger", "data/logs/packets.log")
         self.event_logger = setup_logger("event_logger", "data/logs/events.log")
+        self.health_monitor = ThreadHealthMonitor()
+        self.ml_engine = MLPlaceholder()
         self.running = False
         
         # Stats
@@ -40,19 +46,38 @@ class PersonalFirewall:
         except FileNotFoundError:
             print(f"[!] Warning: Config file {config_path} not found. Running with no rules.")
 
+    def _restart_capture(self):
+        logging.getLogger("system").critical("Restarting capture thread...")
+        time.sleep(1)
+        self.packet_capture.start_capture(callback=self._process_packet, on_crash=self._restart_capture)
+        if self.packet_capture.thread:
+            self.health_monitor.register("PacketCapture", self.packet_capture.thread)
+            
+    def _restart_db_writer(self):
+        logging.getLogger("system").critical("Restarting db writer thread...")
+        time.sleep(1)
+        self.db_writer.start(on_crash=self._restart_db_writer)
+        if self.db_writer.thread:
+            self.health_monitor.register("DBWriter", self.db_writer.thread)
+
     def start(self):
         self.running = True
         self.start_time = datetime.now()
         
         # Start DB Writer
-        self.db_writer.start()
+        self.db_writer.start(on_crash=self._restart_db_writer)
+        if self.db_writer.thread:
+            self.health_monitor.register("DBWriter", self.db_writer.thread)
         
-        # Start cleanup thread for tracker
+        # Start cleanup thread for flow engine
         self.cleanup_thread = threading.Thread(target=self._cleanup_loop, daemon=True)
         self.cleanup_thread.start()
+        self.health_monitor.register("CleanupLoop", self.cleanup_thread)
         
         print("[*] Starting packet capture...")
-        self.packet_capture.start_capture(callback=self._process_packet)
+        self.packet_capture.start_capture(callback=self._process_packet, on_crash=self._restart_capture)
+        if self.packet_capture.thread:
+            self.health_monitor.register("PacketCapture", self.packet_capture.thread)
         print("[*] Firewall started and running in background.")
 
     def stop(self):
@@ -61,13 +86,14 @@ class PersonalFirewall:
         self.db_writer.stop()
         print("[*] Firewall stopped.")
 
-    @log_exceptions(logging.getLogger("event_logger"))
     def _cleanup_loop(self):
         while self.running:
-            self.flow_engine.clean_expired()
+            try:
+                self.flow_engine.clean_expired()
+            except Exception as e:
+                logging.getLogger("system").error(f"Cleanup loop error: {e}")
             time.sleep(10)
 
-    @log_exceptions(logging.getLogger("packet_logger"))
     def _process_packet(self, packet):
         self.packets_processed += 1
         self.bytes_processed += packet.size
@@ -100,6 +126,12 @@ class PersonalFirewall:
             
         # Run IDS
         alerts = self.ids_engine.analyze_packet(packet)
+        
+        # ML Anomaly Detection (Placeholder)
+        label, anomaly_score = self.ml_engine.predict(packet)
+        if anomaly_score > 0.8:
+            print(f"[!] ML ALERT: High anomaly score {anomaly_score}")
+        
         for alert in alerts:
             self.queue_manager.push(alert)
             print(f"[!] ALERT: {alert.description}")

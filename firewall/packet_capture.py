@@ -3,6 +3,7 @@ from typing import Callable, Optional
 from datetime import datetime
 from scapy.all import sniff, IP, TCP, UDP, ICMP
 from firewall.models import Packet
+from firewall.logger import thread_safe_run
 
 class PacketCapture:
     def __init__(self, interface: Optional[str] = None):
@@ -46,17 +47,26 @@ class PacketCapture:
         callback(packet)
 
     def _start_sniffing(self, callback: Callable):
-        # We use a filter to capture mostly IP packets
-        # For cross-platform, we might just let it sniff all and filter in handler
-        sniff(
-            prn=lambda p: self._packet_handler(p, callback),
-            store=False,
-            stop_filter=lambda p: not self.running
-        )
+        try:
+            sniff(
+                prn=lambda p: self._packet_handler(p, callback),
+                store=False,
+                stop_filter=lambda p: not self.running
+            )
+        except Exception as e:
+            if "winpcap is not installed" in str(e).lower():
+                print("[!] Windows PCAP not found. Packet capture disabled. Use simulation script.")
+            else:
+                raise
 
-    def start_capture(self, callback: Callable):
+    def start_capture(self, callback: Callable, on_crash=None):
         self.running = True
-        self.thread = threading.Thread(target=self._start_sniffing, args=(callback,), daemon=True)
+        
+        @thread_safe_run("PacketCapture", on_crash=on_crash)
+        def run_sniff():
+            self._start_sniffing(callback)
+            
+        self.thread = threading.Thread(target=run_sniff, daemon=False)
         self.thread.start()
 
     def stop_capture(self):
