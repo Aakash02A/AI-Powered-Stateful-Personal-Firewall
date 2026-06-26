@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { useThemeStore } from './store/themeStore';
 
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const Connections = lazy(() => import('./pages/Connections').then(m => ({ default: m.Connections })));
@@ -25,6 +26,16 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const { isDark } = useThemeStore();
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+    }
+  }, [isDark]);
+
   return (
     <GlobalErrorBoundary>
       <QueryClientProvider client={queryClient}>

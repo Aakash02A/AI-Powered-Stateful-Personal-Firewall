@@ -2,8 +2,28 @@
 @config "../tailwind.config.js";
 
 @layer base {
+  :root {
+    --bg-background: #0F172A;
+  }
+  
+  .light {
+    --color-slate-900: #f8fafc;
+    --color-slate-800: #f1f5f9;
+    --color-slate-700: #e2e8f0;
+    --color-slate-600: #cbd5e1;
+    --color-slate-500: #94a3b8;
+    --color-slate-400: #64748b;
+    --color-slate-300: #475569;
+    --color-slate-200: #334155;
+    --color-slate-100: #0f172a;
+    --color-slate-50: #020617;
+    --bg-background: #F8FAFC;
+  }
+
   body {
-    @apply bg-background text-slate-200 antialiased min-h-screen;
+    @apply antialiased min-h-screen;
+    background-color: var(--bg-background, #0F172A);
+    color: var(--color-slate-200, #e2e8f0);
     background-image: 
       radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
       radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 

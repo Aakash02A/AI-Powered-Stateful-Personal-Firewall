@@ -3,14 +3,14 @@ version: '3.8'
 services:
   firewall:
     build: .
-    container_name: ai-firewall
+    container_name: ai-firewall-backend
     cap_add:
-      - NET_ADMIN  # Required for packet capture
+      - NET_ADMIN
     ports:
       - "8000:8000"
     volumes:
       - ./config/rules.json:/app/config/rules.json
-      - firewall-data:/app/data  # Persist SQLite database and logs
+      - firewall-data:/app/data
     environment:
       - LOG_LEVEL=INFO
       - API_KEY=${FIREWALL_API_KEY:-changeme}
@@ -18,15 +18,16 @@ services:
     networks:
       - firewall-net
 
-  # Optional: Prometheus for metrics (uncomment if needed later)
-  # prometheus:
-  #   image: prom/prometheus:latest
-  #   ports:
-  #     - "9090:9090"
-  #   volumes:
-  #     - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-  #   networks:
-  #     - firewall-net
+  frontend:
+    build: ./frontend
+    container_name: ai-firewall-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - firewall
+    restart: unless-stopped
+    networks:
+      - firewall-net
 
 volumes:
   firewall-data:
