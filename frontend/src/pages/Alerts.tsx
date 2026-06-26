@@ -1,0 +1,99 @@
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { DataTable, type Column } from '../components/DataTable';
+import { apiClient } from '../api/client';
+import { type AlertData } from '../components/AlertFeed';
+
+export function Alerts() {
+  const [severityFilter, setSeverityFilter] = useState<string>('');
+
+  const { data: response, isLoading } = useQuery({
+    queryKey: ['alerts', severityFilter],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      params.append('limit', '500');
+      if (severityFilter) params.append('severity', severityFilter);
+      return apiClient.get(`/alerts?${params.toString()}`).then(res => res.data);
+    },
+    refetchInterval: 10000,
+  });
+
+  const alerts: AlertData[] = response?.data || [];
+
+  const columns: Column<AlertData>[] = [
+    {
+      key: 'timestamp',
+      header: 'Time',
+      sortable: true,
+      render: (row) => format(new Date(row.timestamp), 'yyyy-MM-dd HH:mm:ss')
+    },
+    {
+      key: 'severity',
+      header: 'Severity',
+      sortable: true,
+      render: (row) => {
+        const colors = {
+          CRITICAL: 'bg-danger/20 text-danger border-danger/30',
+          HIGH: 'bg-warning/20 text-warning border-warning/30',
+          MEDIUM: 'bg-primary/20 text-primary border-primary/30',
+          LOW: 'bg-success/20 text-success border-success/30',
+        };
+        const colorClass = colors[row.severity] || colors.LOW;
+        return (
+          <span className={`px-2 py-1 rounded text-xs font-bold border ${colorClass}`}>
+            {row.severity}
+          </span>
+        );
+      }
+    },
+    { key: 'alert_type', header: 'Type', sortable: true },
+    { key: 'src_ip', header: 'Source IP', sortable: true },
+    { key: 'dst_ip', header: 'Dest IP', sortable: true },
+    { key: 'description', header: 'Description', sortable: false },
+    { 
+      key: 'action_taken', 
+      header: 'Action', 
+      sortable: true,
+      render: (row) => (
+        <span className="uppercase text-xs tracking-wider text-slate-400 bg-slate-800 px-2 py-1 rounded">
+          {row.action_taken}
+        </span>
+      )
+    },
+  ];
+
+  return (
+    <div className="h-full flex flex-col space-y-4">
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Security Alerts</h1>
+          <p className="text-sm text-slate-400 mt-1">Historical log of all detected network threats and anomalies.</p>
+        </div>
+        
+        <div className="flex space-x-2">
+          <select 
+            value={severityFilter}
+            onChange={(e) => setSeverityFilter(e.target.value)}
+            className="bg-slate-900 border border-slate-700 text-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="">All Severities</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="flex-1 min-h-0">
+        <DataTable 
+          data={alerts} 
+          columns={columns} 
+          isLoading={isLoading} 
+          searchPlaceholder="Search IP or description..."
+        />
+      </div>
+    </div>
+  );
+}
