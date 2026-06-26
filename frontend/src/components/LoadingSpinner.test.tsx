@@ -4,7 +4,8 @@ import { describe, it, expect } from 'vitest';
 
 describe('LoadingSpinner', () => {
   it('renders correctly', () => {
-    render(<LoadingSpinner />);
+    const { container } = render(<LoadingSpinner />);
     expect(screen.getByText('Initializing Security Modules...')).toBeInTheDocument();
+    expect(container.querySelector('.animate-spin')).toBeInTheDocument();
   });
 });
