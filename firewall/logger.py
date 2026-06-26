@@ -2,7 +2,7 @@ import functools
 import json
 import logging
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from logging.handlers import TimedRotatingFileHandler
 
 logger = logging.getLogger(__name__)
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class JSONFormatter(logging.Formatter):
     def format(self, record):
         log_record = {
-            "time": datetime.utcnow().isoformat() + "Z",
+            "time": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
             "name": record.name,
             "level": record.levelname,
             "message": record.getMessage(),

@@ -159,9 +159,9 @@ class IDSEngine:
         conn = self.tracker.active_connections.get(key)
         if not conn:
             return None
-        
+
         now = datetime.now()
-        
+
         if (now - self.ml_last_cleanup).total_seconds() > 60:
             self.ml_last_eval = {k: v for k, v in self.ml_last_eval.items() if k in self.tracker.active_connections}
             self.ml_last_cleanup = now
@@ -172,15 +172,15 @@ class IDSEngine:
             if hasattr(conn, "conn_packets_out")
             else conn.packets_in + conn.packets_out
         )
-        
+
         if total_packets < 10:
             return None
-            
+
         if last_eval and (now - last_eval).total_seconds() < 1.0:
             return None
-            
+
         self.ml_last_eval[key] = now
-        
+
         is_anomalous = self.ml_detector.evaluate_connection(conn)
         if is_anomalous:
             return Alert(
