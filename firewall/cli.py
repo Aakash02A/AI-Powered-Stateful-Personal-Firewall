@@ -1,6 +1,7 @@
 import click
 import time
 import json
+import os
 from firewall.firewall import PersonalFirewall
 
 fw_instance = None
@@ -96,6 +97,17 @@ def queries(limit):
         src = f"{r['src_ip']}:{r['src_port']}"
         dst = f"{r['dst_ip']}:{r['dst_port']}"
         click.echo(f"{r['state']:<12} | {src:<20} | {dst:<20} | {r['protocol']}")
+
+@cli.command(name="db-upgrade")
+def db_upgrade():
+    """Run database migrations to upgrade schema to latest version"""
+    import subprocess
+    click.echo("[*] Running Alembic migrations...")
+    result = subprocess.run(["python", "-m", "alembic", "upgrade", "head"], capture_output=True, text=True)
+    if result.returncode == 0:
+        click.echo("[+] Database upgrade successful.")
+    else:
+        click.echo(f"[!] Database upgrade failed: {result.stderr}")
 
 if __name__ == '__main__':
     cli()

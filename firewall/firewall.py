@@ -16,9 +16,7 @@ from firewall.queue_manager import QueueManager
 from firewall.db_writer import DBWriter
 from firewall.event_bus import EventBus
 
-class MLPlaceholder:
-    def predict(self, features):
-        return -1, 0.0  # Normal, no anomaly score
+
 
 class PersonalFirewall:
     def __init__(self, config_path: str = "firewall/config/rules.json", db_path: str = "sqlite:///data/firewall.db"):
@@ -32,7 +30,6 @@ class PersonalFirewall:
         self.packet_logger = setup_logger("packet_logger", "data/logs/packets.log")
         self.event_logger = setup_logger("event_logger", "data/logs/events.log")
         self.health_monitor = ThreadHealthMonitor()
-        self.ml_engine = MLPlaceholder()
         self.running = False
         
         # Stats
@@ -42,9 +39,9 @@ class PersonalFirewall:
         
         try:
             self.rule_engine.load_rules_from_json(config_path)
-            print(f"[*] Loaded {len(self.rule_engine.rules)} rules from {config_path}")
+            logging.getLogger("system").info(f"Loaded {len(self.rule_engine.rules)} rules from {config_path}")
         except FileNotFoundError:
-            print(f"[!] Warning: Config file {config_path} not found. Running with no rules.")
+            logging.getLogger("system").warning(f"Config file {config_path} not found. Running with no rules.")
 
     def _restart_capture(self):
         logging.getLogger("system").critical("Restarting capture thread...")
@@ -74,17 +71,20 @@ class PersonalFirewall:
         self.cleanup_thread.start()
         self.health_monitor.register("CleanupLoop", self.cleanup_thread)
         
-        print("[*] Starting packet capture...")
+        logging.getLogger("system").info("Starting packet capture...")
         self.packet_capture.start_capture(callback=self._process_packet, on_crash=self._restart_capture)
         if self.packet_capture.thread:
             self.health_monitor.register("PacketCapture", self.packet_capture.thread)
-        print("[*] Firewall started and running in background.")
+        logging.getLogger("system").info("Firewall started and running in background.")
 
     def stop(self):
         self.running = False
+        logging.getLogger("system").info("Stopping Firewall Core...")
         self.packet_capture.stop_capture()
         self.db_writer.stop()
-        print("[*] Firewall stopped.")
+        if hasattr(self, 'cleanup_thread') and self.cleanup_thread.is_alive():
+            self.cleanup_thread.join(timeout=2.0)
+        logging.getLogger("system").info("Firewall stopped.")
 
     def _cleanup_loop(self):
         while self.running:
@@ -127,14 +127,10 @@ class PersonalFirewall:
         # Run IDS
         alerts = self.ids_engine.analyze_packet(packet)
         
-        # ML Anomaly Detection (Placeholder)
-        label, anomaly_score = self.ml_engine.predict(packet)
-        if anomaly_score > 0.8:
-            print(f"[!] ML ALERT: High anomaly score {anomaly_score}")
-        
+        # Enqueue IDS alerts
         for alert in alerts:
             self.queue_manager.push(alert)
-            print(f"[!] ALERT: {alert.description}")
+            logging.getLogger("system").warning(f"ALERT: {alert.description}")
             
         # Log firewall event if it was matched or blocked/logged
         if action != "allow" or rule_id != "default_allow_established":

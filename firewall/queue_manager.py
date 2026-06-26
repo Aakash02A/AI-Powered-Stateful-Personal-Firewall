@@ -20,3 +20,6 @@ class QueueManager:
             
     def qsize(self):
         return self.q.qsize()
+
+    def empty(self):
+        return self.q.empty()

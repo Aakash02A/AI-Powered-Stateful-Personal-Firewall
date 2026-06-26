@@ -1,11 +1,14 @@
 import logging
 import uuid
 import asyncio
+import time
 from contextlib import asynccontextmanager
+import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -54,6 +57,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Instrument Prometheus Metrics
+Instrumentator().instrument(app).expose(app)
+
 # Exception Handlers
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -67,14 +73,32 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # Middleware
 @app.middleware("http")
-async def add_request_id_and_log(request: Request, call_next):
+async def add_security_headers_and_log(request: Request, call_next):
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
     request.state.request_id = request_id
     
+    start_time = time.time()
     logger.info(f"Incoming request: {request.method} {request.url.path}", extra={"request_id": request_id})
-    response = await call_next(request)
+    
+    try:
+        response = await call_next(request)
+    except Exception as e:
+        logger.error(f"Request failed: {e}", extra={"request_id": request_id}, exc_info=True)
+        raise
+        
+    process_time = (time.time() - start_time) * 1000
+    
+    # Security Headers
     response.headers["X-Request-ID"] = request_id
-    logger.info(f"Response status: {response.status_code}", extra={"request_id": request_id})
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    
+    logger.info(
+        f"Response status: {response.status_code} - Process time: {process_time:.2f}ms", 
+        extra={"request_id": request_id, "process_time_ms": process_time, "status_code": response.status_code}
+    )
     return response
 
 # CORS
@@ -96,3 +120,13 @@ app.include_router(health.router)
 @limiter.limit(settings.RATE_LIMIT)
 def read_root(request: Request):
     return {"message": "Welcome to the Personal Firewall API. Visit /docs for documentation."}
+
+@app.get("/version", summary="Application Version")
+def version():
+    commit_hash = os.getenv("GIT_COMMIT_HASH", "unknown")
+    build_date = os.getenv("BUILD_DATE", "unknown")
+    return {
+        "version": app.version,
+        "commit_hash": commit_hash,
+        "build_date": build_date
+    }

@@ -1,5 +1,6 @@
 import pytest
 import time
+import os
 from datetime import datetime
 from firewall.firewall import PersonalFirewall
 from firewall.models import Packet
@@ -21,16 +22,21 @@ def test_firewall_integration_packet_processing(tmp_path):
     
     # Check DB
     conns = fw.db_writer.db.query_connections()
-    assert len(conns) == 0 # DB doesn't store active connections immediately unless we implement connection logging
+    assert len(conns) == 0 # DB doesn't store active connections immediately
     
     # Send another packet to trigger brute force
     for _ in range(6):
         fw._process_packet(p)
         
+    import time
+    time.sleep(1.0)
+    
+    # Properly stop the firewall to drain queues and flush DB synchronously
+    fw.stop()
+    
     alerts = fw.db_writer.db.query_alerts()
     assert len(alerts) >= 1
     
     # Ensure logs were written
-    import os
     assert os.path.exists("data/logs/packets.log")
     assert os.path.exists("data/logs/events.log")

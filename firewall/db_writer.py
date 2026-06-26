@@ -60,9 +60,18 @@ class DBWriter:
         self.buffer.clear()
         
     def stop(self):
+        logging.getLogger("system").info("Stopping DBWriter and draining queues...")
         self.running = False
         self.on_crash = None
         if self.thread:
             self.thread.join(timeout=2.0)
+            
+        # Drain remaining items in queue
+        while not self.queue_manager.empty():
+            item = self.queue_manager.pop(timeout=0.1)
+            if item:
+                self.buffer.append(item)
+                
         if self.buffer:
             self._flush()
+        logging.getLogger("system").info("DBWriter stopped successfully.")

@@ -1,47 +1,14 @@
-# Python/Project environments
-__pycache__/
-*.py[cod]
-*$py.class
 .env
-venv/
-env/
-.venv/
-
-# Testing
+__pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
-
-# Logs
-*.log
-*.log.*
-
-# Databases & Data
-data/
+.venv/
 *.db
-*.sqlite3
-
-# Backups
-backups/
-firewall_backup_*.db
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDEs
-.vscode/
+logs/
+*.log
 .idea/
-*.swp
-
-# Application-specific generated output
-simulation_output.txt
-benchmark_output.txt
-
-/data
-/doc
+.vscode/
+dist/
+build/
+*.egg-info/
