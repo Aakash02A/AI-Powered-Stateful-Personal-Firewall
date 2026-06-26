@@ -98,7 +98,7 @@ class PortStatisticsRecord(Base):
     connections: Mapped[int] = mapped_column(Integer)
 
 class FirewallDatabase:
-    def __init__(self, db_path: str = "sqlite:///firewall.db"):
+    def __init__(self, db_path: str = "sqlite:///data/firewall.db"):
         self.engine = create_engine(db_path, connect_args={"check_same_thread": False})
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)

@@ -16,6 +16,8 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log_record)
 
 def setup_logger(name: str, log_file: str) -> logging.Logger:
+    import os
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     
@@ -25,3 +27,18 @@ def setup_logger(name: str, log_file: str) -> logging.Logger:
         logger.addHandler(handler)
         
     return logger
+
+from functools import wraps
+import traceback
+
+def log_exceptions(logger: logging.Logger):
+    """Decorator to catch and log unhandled exceptions in threads/loops"""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                logger.error(f"Unhandled exception in {func.__name__}: {str(e)}", extra={"extra_data": {"traceback": traceback.format_exc()}})
+        return wrapper
+    return decorator

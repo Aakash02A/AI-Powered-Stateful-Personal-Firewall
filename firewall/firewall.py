@@ -10,20 +10,23 @@ from firewall.rule_engine import RuleEngine
 from firewall.ids_engine import IDSEngine
 from firewall.database import FirewallDatabase
 from firewall.models import FirewallEvent
-from firewall.logger import setup_logger
+from firewall.logger import setup_logger, log_exceptions
+import logging
 from firewall.queue_manager import QueueManager
 from firewall.db_writer import DBWriter
+from firewall.event_bus import EventBus
 
 class PersonalFirewall:
-    def __init__(self, config_path: str = "firewall/config/rules.json", db_path: str = "sqlite:///firewall.db"):
+    def __init__(self, config_path: str = "firewall/config/rules.json", db_path: str = "sqlite:///data/firewall.db"):
         self.packet_capture = PacketCapture()
         self.rule_engine = RuleEngine()
         self.flow_engine = FlowEngine()
         self.ids_engine = IDSEngine(self.flow_engine)
         self.queue_manager = QueueManager()
+        self.event_bus = EventBus()
         self.db_writer = DBWriter(db_path=db_path)
-        self.packet_logger = setup_logger("packet_logger", "packets.log")
-        self.event_logger = setup_logger("event_logger", "events.log")
+        self.packet_logger = setup_logger("packet_logger", "data/logs/packets.log")
+        self.event_logger = setup_logger("event_logger", "data/logs/events.log")
         self.running = False
         
         # Stats
@@ -58,11 +61,13 @@ class PersonalFirewall:
         self.db_writer.stop()
         print("[*] Firewall stopped.")
 
+    @log_exceptions(logging.getLogger("event_logger"))
     def _cleanup_loop(self):
         while self.running:
             self.flow_engine.clean_expired()
             time.sleep(10)
 
+    @log_exceptions(logging.getLogger("packet_logger"))
     def _process_packet(self, packet):
         self.packets_processed += 1
         self.bytes_processed += packet.size
@@ -113,6 +118,8 @@ class PersonalFirewall:
                 reason=rule.description if rule else "No matching rule"
             )
             self.queue_manager.push(event)
+            if action == "block":
+                self.event_bus.publish("events", event)
             
             self.event_logger.info(
                 "Firewall Event", 

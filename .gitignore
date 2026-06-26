@@ -1,10 +1,46 @@
-/doc
-/tests
-
-.pytest_cache/
+# Python/Project environments
 __pycache__/
-*.db
-*.log
+*.py[cod]
+*$py.class
+.env
+venv/
+env/
+.venv/
+
+# Testing
+.pytest_cache/
 .coverage
+htmlcov/
+
+# Logs
+*.log
+*.log.*
+
+# Databases & Data
+data/
+*.db
+*.sqlite3
+
+# Backups
+backups/
+firewall_backup_*.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Application-specific generated output
 simulation_output.txt
 benchmark_output.txt
+
+/data

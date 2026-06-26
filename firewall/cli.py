@@ -12,7 +12,7 @@ def cli():
 
 @cli.command()
 @click.option('--config', default='firewall/config/rules.json', help='Path to rules config file')
-@click.option('--db', default='sqlite:///firewall.db', help='Path to database')
+@click.option('--db', default='sqlite:///data/firewall.db', help='Path to database')
 def start(config, db):
     """Start the firewall"""
     global fw_instance
@@ -22,6 +22,26 @@ def start(config, db):
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
+        fw_instance.stop()
+
+@cli.command(name="start-api")
+@click.option('--config', default='firewall/config/rules.json', help='Path to rules config file')
+@click.option('--db', default='sqlite:///data/firewall.db', help='Path to database')
+@click.option('--host', default='127.0.0.1', help='API Host')
+@click.option('--port', default=8000, help='API Port')
+def start_api(config, db, host, port):
+    """Start the firewall and the FastAPI server"""
+    import uvicorn
+    global fw_instance
+    fw_instance = PersonalFirewall(config_path=config, db_path=db)
+    fw_instance.start()
+    
+    click.echo(f"[*] Starting FastAPI server on {host}:{port}")
+    try:
+        uvicorn.run("api.main:app", host=host, port=port, log_level="info")
+    except KeyboardInterrupt:
+        pass
+    finally:
         fw_instance.stop()
 
 @cli.command()

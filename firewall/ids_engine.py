@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Optional, List
 from firewall.models import Packet, Alert
 from analytics.flow_engine import FlowEngine
+from firewall.event_bus import EventBus
 
 class IDSEngine:
     def __init__(self, flow_engine: FlowEngine):
@@ -12,6 +13,7 @@ class IDSEngine:
         self.icmp_flood_threshold = 100  # ICMP packets in 5 seconds
         self.brute_force_threshold = 5   # Failed attempts in 30 seconds
         self.whitelist = {"127.0.0.1"}
+        self.event_bus = EventBus()
 
         # Tracking state
         self.syn_packets = defaultdict(list)
@@ -148,4 +150,7 @@ class IDSEngine:
         alert5 = self.detect_brute_force(packet)
         if alert5: alerts.append(alert5)
         
+        for alert in alerts:
+            self.event_bus.publish("alerts", alert)
+            
         return alerts

@@ -3,9 +3,11 @@ import time
 from firewall.queue_manager import QueueManager
 from firewall.database import FirewallDatabase
 from firewall.models import Packet, Connection, FirewallEvent, Alert
+from firewall.logger import log_exceptions
+import logging
 
 class DBWriter(threading.Thread):
-    def __init__(self, db_path: str = "sqlite:///firewall.db", batch_size: int = 100, flush_interval: int = 5):
+    def __init__(self, db_path: str = "sqlite:///data/firewall.db", batch_size: int = 100, flush_interval: int = 5):
         super().__init__(daemon=True)
         self.db = FirewallDatabase(db_path)
         self.queue_manager = QueueManager()
@@ -15,6 +17,7 @@ class DBWriter(threading.Thread):
         self.last_flush = time.time()
         self.running = True
 
+    @log_exceptions(logging.getLogger("db_writer"))
     def run(self):
         while self.running:
             item = self.queue_manager.pop(timeout=1.0)
@@ -27,6 +30,7 @@ class DBWriter(threading.Thread):
                     self._flush()
                 self.last_flush = now
                 
+    @log_exceptions(logging.getLogger("db_writer"))
     def _flush(self):
         self.db.bulk_insert(self.buffer)
         self.buffer.clear()
