@@ -5,6 +5,7 @@ from typing import List, Optional
 from analytics.flow_engine import FlowEngine
 from firewall.event_bus import EventBus
 from firewall.models import Alert, Packet
+from ml.ml_detector import MLAnomalyDetector
 
 
 class IDSEngine:
@@ -16,12 +17,15 @@ class IDSEngine:
         self.brute_force_threshold = 5  # Failed attempts in 30 seconds
         self.whitelist = {"127.0.0.1"}
         self.event_bus = EventBus()
+        self.ml_detector = MLAnomalyDetector()
 
         # Tracking state
         self.syn_packets = defaultdict(list)
         self.icmp_packets = defaultdict(list)
         self.port_scans = defaultdict(set)
         self.brute_force = defaultdict(list)
+        self.ml_last_eval = {}
+        self.ml_last_cleanup = datetime.now()
 
         self.suspicious_ports = {
             12345: "SSH alternative",
@@ -144,6 +148,51 @@ class IDSEngine:
             )
         return None
 
+    def detect_ml_anomaly(self, packet: Packet) -> Optional[Alert]:
+        if hasattr(self.tracker, "_get_canonical_key"):
+            key = self.tracker._get_canonical_key(packet)
+        elif hasattr(self.tracker, "_get_connection_key"):
+            key = self.tracker._get_connection_key(packet)
+        else:
+            return None
+
+        conn = self.tracker.active_connections.get(key)
+        if not conn:
+            return None
+        
+        now = datetime.now()
+        
+        if (now - self.ml_last_cleanup).total_seconds() > 60:
+            self.ml_last_eval = {k: v for k, v in self.ml_last_eval.items() if k in self.tracker.active_connections}
+            self.ml_last_cleanup = now
+
+        last_eval = self.ml_last_eval.get(key)
+        total_packets = (
+            conn.packets_in + conn.conn_packets_out
+            if hasattr(conn, "conn_packets_out")
+            else conn.packets_in + conn.packets_out
+        )
+        
+        if total_packets < 10:
+            return None
+            
+        if last_eval and (now - last_eval).total_seconds() < 1.0:
+            return None
+            
+        self.ml_last_eval[key] = now
+        
+        is_anomalous = self.ml_detector.evaluate_connection(conn)
+        if is_anomalous:
+            return Alert(
+                alert_type="ml_anomaly",
+                severity="high",
+                src_ip=conn.src_ip,
+                dst_ip=conn.dst_ip,
+                description=f"ML Anomaly detected for flow {conn.src_ip}:{conn.src_port} -> {conn.dst_ip}:{conn.dst_port}",
+                action_taken="log",
+            )
+        return None
+
     def analyze_packet(self, packet: Packet) -> List[Alert]:
         alerts = []
         if packet.src_ip in self.whitelist:
@@ -168,6 +217,10 @@ class IDSEngine:
         alert5 = self.detect_brute_force(packet)
         if alert5:
             alerts.append(alert5)
+
+        alert6 = self.detect_ml_anomaly(packet)
+        if alert6:
+            alerts.append(alert6)
 
         for alert in alerts:
             self.event_bus.publish("alerts", alert)
