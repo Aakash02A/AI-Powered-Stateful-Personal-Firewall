@@ -1,7 +1,7 @@
 scapy>=2.5.0
 pydantic>=2.0
 sqlalchemy>=2.0
-click>=8.0
+click>=8.4.2
 pytest>=7.0
 pytest-cov>=4.0
 pandas>=2.0.0
