@@ -1,11 +1,12 @@
 import { render, screen, waitFor, act } from '@testing-library/react';
+import React from 'react';
 import { Dashboard } from './Dashboard';
 import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 vi.mock('../hooks/useWebSocket', () => ({
-  useWebSocket: vi.fn(() => ({ isConnected: true, lastMessage: null }))
+  useWebSocket: vi.fn(() => ({ isConnected: true, lastMessage: null, lastMessageTime: null }))
 }));
 
 // We mock Recharts to prevent ResizeObserver errors and speed up tests
@@ -44,10 +45,26 @@ describe('Dashboard Integration', () => {
   it('updates dashboard on WebSocket alert', async () => {
     let mockSetMessage: (msg: any) => void;
     
+    let currentMessage: any = null;
+    let messageListeners: any[] = [];
+    
+    mockSetMessage = (msg: any) => {
+      currentMessage = msg;
+      messageListeners.forEach(listener => listener(msg));
+    };
+    
     vi.mocked(useWebSocket).mockImplementation(() => {
-      const [lastMessage, setLastMessage] = require('react').useState(null);
-      mockSetMessage = setLastMessage;
-      return { isConnected: true, lastMessage };
+      const [lastMessage, setLastMessage] = React.useState(currentMessage);
+      const [lastMessageTime] = React.useState(currentMessage ? new Date().toISOString() : null);
+      
+      React.useEffect(() => {
+        messageListeners.push(setLastMessage);
+        return () => {
+          messageListeners = messageListeners.filter((l: any) => l !== setLastMessage);
+        };
+      }, []);
+      
+      return { isConnected: true, lastMessage, lastMessageTime };
     });
 
     const queryClient = createTestQueryClient();

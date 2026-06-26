@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 export interface Column<T> {
   key: string;
   header: string;
   render?: (row: T) => React.ReactNode;
   sortable?: boolean;
+  width?: string;
 }
 
 interface DataTableProps<T> {
@@ -69,6 +71,14 @@ export function DataTable<T extends Record<string, any>>({
     return result;
   }, [data, sortKey, sortDesc, localSearch, onSearch]);
 
+  const parentRef = useRef<HTMLDivElement>(null);
+  const rowVirtualizer = useVirtualizer({
+    count: processedData.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 53, // Approx height of tr
+    overscan: 5,
+  });
+
   return (
     <div className="glass-panel flex flex-col h-full overflow-hidden">
       <div className="p-4 border-b border-slate-700/50 flex justify-between items-center bg-slate-800/30">
@@ -86,14 +96,15 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
-        <table className="min-w-full divide-y divide-slate-700/50 text-sm">
-          <thead className="bg-slate-900/80 sticky top-0 z-10 backdrop-blur-sm">
-            <tr>
+      <div ref={parentRef} className="flex-1 overflow-auto relative">
+        <table className="min-w-full divide-y divide-slate-700/50 text-sm table-fixed">
+          <thead className="bg-slate-900/80 sticky top-0 z-20 backdrop-blur-sm block">
+            <tr className="flex w-full">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   scope="col"
+                  style={{ width: col.width || `${100 / columns.length}%` }}
                   className={`px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider ${col.sortable ? 'cursor-pointer hover:bg-slate-800/50' : ''}`}
                   onClick={() => col.sortable && handleSort(col.key)}
                 >
@@ -107,10 +118,13 @@ export function DataTable<T extends Record<string, any>>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-700/50 bg-transparent">
+          <tbody 
+            className="divide-y divide-slate-700/50 bg-transparent block relative"
+            style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+          >
             {isLoading ? (
-              <tr>
-                <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-500">
+              <tr className="flex w-full relative">
+                <td className="px-6 py-8 text-center text-slate-500 w-full">
                   <div className="animate-pulse flex flex-col items-center justify-center space-y-2">
                     <div className="h-4 bg-slate-700 rounded w-1/4"></div>
                     <div className="h-4 bg-slate-700 rounded w-1/2"></div>
@@ -118,21 +132,35 @@ export function DataTable<T extends Record<string, any>>({
                 </td>
               </tr>
             ) : processedData.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-500">
+              <tr className="flex w-full relative">
+                <td className="px-6 py-8 text-center text-slate-500 w-full">
                   No data found
                 </td>
               </tr>
             ) : (
-              processedData.map((row, rowIndex) => (
-                <tr key={rowIndex} className="hover:bg-slate-800/30 transition-colors">
-                  {columns.map((col) => (
-                    <td key={col.key} className="px-6 py-4 whitespace-nowrap text-slate-300">
-                      {col.render ? col.render(row) : row[col.key]}
-                    </td>
-                  ))}
-                </tr>
-              ))
+              rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const row = processedData[virtualRow.index];
+                return (
+                  <tr 
+                    key={virtualRow.index} 
+                    className="hover:bg-slate-800/30 transition-colors flex w-full absolute"
+                    style={{
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                  >
+                    {columns.map((col) => (
+                      <td 
+                        key={col.key} 
+                        style={{ width: col.width || `${100 / columns.length}%` }}
+                        className="px-6 py-4 whitespace-nowrap text-slate-300 overflow-hidden text-ellipsis"
+                      >
+                        {col.render ? col.render(row) : row[col.key]}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

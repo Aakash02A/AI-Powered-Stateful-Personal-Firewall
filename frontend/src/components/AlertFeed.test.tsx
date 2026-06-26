@@ -26,7 +26,6 @@ describe('AlertFeed', () => {
       { timestamp: '2026-06-26T10:00:00Z', severity: 'HIGH', alert_type: 'Scan', src_ip: '1.2.3.4', dst_ip: '5.6.7.8', description: 'Critical alert', action_taken: 'Blocked' },
     ]} />);
     
-    const alertIcon = screen.getByText('SCAN').closest('div')?.querySelector('svg');
     const container = screen.getByText('Critical alert').closest('div.flex.items-start');
     expect(container).toHaveClass('border-warning/20');
   });

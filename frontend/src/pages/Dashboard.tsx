@@ -6,9 +6,12 @@ import { ProtocolChart } from '../components/ProtocolChart';
 import { AlertFeed, type AlertData } from '../components/AlertFeed';
 import { apiClient } from '../api/client';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { ConnectionStatus } from '../components/ConnectionStatus';
+import { NotificationHistory } from '../components/NotificationHistory';
 
 export function Dashboard() {
   const [liveAlerts, setLiveAlerts] = useState<AlertData[]>([]);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   
   // Connect to WebSocket stream
   const { lastMessage } = useWebSocket();
@@ -47,6 +50,9 @@ export function Dashboard() {
           <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Security Dashboard</h1>
           <p className="text-sm text-slate-400 mt-1">Real-time overview of network health and active threats.</p>
         </div>
+        <div className="hidden sm:block">
+          <ConnectionStatus />
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -83,9 +89,17 @@ export function Dashboard() {
         
         {/* Right Column - Live Feed */}
         <div className="lg:col-span-1">
-          <AlertFeed alerts={liveAlerts} />
+          <AlertFeed 
+            alerts={liveAlerts} 
+            onViewHistory={() => setIsHistoryOpen(true)} 
+          />
         </div>
       </div>
+      
+      <NotificationHistory 
+        isOpen={isHistoryOpen} 
+        onClose={() => setIsHistoryOpen(false)} 
+      />
     </div>
   );
 }

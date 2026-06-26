@@ -23,7 +23,20 @@ vi.stubGlobal('ResizeObserver', class ResizeObserver {
   disconnect() {}
 });
 
+// Mock react-virtual because jsdom has 0 height containers
+vi.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: (options: any) => ({
+    getVirtualItems: () => Array.from({ length: options.count }).map((_, i) => ({
+      index: i,
+      size: 50,
+      start: i * 50
+    })),
+    getTotalSize: () => options.count * 50,
+  })
+}));
+
 import { server } from './mocks/server';
+import { beforeAll, afterEach, afterAll } from 'vitest';
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());

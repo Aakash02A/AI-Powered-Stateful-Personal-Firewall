@@ -1,30 +1,51 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Dashboard E2E', () => {
-  test('loads dashboard and navigates', async ({ page }) => {
-    await page.route('**/api/v1/stats', async route => {
-      await route.fulfill({ json: { status: 'success', data: { total_packets: 1000, active_connections: 5, total_alerts: 2, blocked_ips: 1 } } });
-    });
-    await page.route('**/api/v1/protocols', async route => {
-      await route.fulfill({ json: { status: 'success', data: { TCP: 800, UDP: 200 } } });
-    });
+test.describe('Dashboard and Navigation', () => {
+  test('should load the dashboard and display key components', async ({ page }) => {
+    await page.goto('/');
 
-    await page.goto('http://localhost:5173/');
-    
-    await expect(page.locator('text=Status:').first()).toBeVisible();
+    // Check title
+    await expect(page.getByText('Security Dashboard')).toBeVisible();
 
-    await page.click('text=Active Connections');
-    await expect(page.locator('text=Active Connections').first()).toBeVisible();
+    // Check Stats Cards (mocked data usually loads quickly)
+    await expect(page.getByRole('heading', { name: 'Total Packets' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Active Connections' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Total Alerts' })).toBeVisible();
     
-    const html = page.locator('html');
-    const isDark = await html.evaluate(node => node.classList.contains('light') === false);
+    // Check connection status
+    await expect(page.getByText('REST API:')).toBeVisible();
+    await expect(page.getByText('Live Feed:')).toBeVisible();
+  });
+
+  test('should open notification history modal', async ({ page }) => {
+    await page.goto('/');
+
+    // Click History button
+    const historyBtn = page.getByRole('button', { name: 'History' });
+    await expect(historyBtn).toBeVisible();
+    await historyBtn.click();
+
+    // Modal should appear
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor({ state: 'attached', timeout: 10000 });
+    await expect(page.getByRole('heading', { name: 'Notification History' })).toBeAttached();
     
-    await page.click('button[aria-label="Toggle Theme"]');
-    
-    if (isDark) {
-      await expect(html).toHaveClass(/light/);
-    } else {
-      await expect(html).not.toHaveClass(/light/);
-    }
+    // Close modal using Escape
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).not.toBeVisible();
+  });
+
+  test('should navigate to connections page', async ({ page }) => {
+    await page.goto('/');
+
+    // Click Connections in sidebar
+    await page.getByRole('link', { name: 'Connections' }).click();
+
+    // Wait for route change
+    await expect(page).toHaveURL(/.*\/connections/);
+    await expect(page.getByRole('heading', { name: 'Active Connections' })).toBeVisible();
+
+    // Check for datatable
+    await expect(page.getByPlaceholder('Search IPs, ports, or protocols...')).toBeVisible();
   });
 });

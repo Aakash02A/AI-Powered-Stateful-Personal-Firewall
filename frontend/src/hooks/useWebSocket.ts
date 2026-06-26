@@ -9,6 +9,7 @@ export interface WebSocketPayload {
 export function useWebSocket() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<WebSocketPayload | null>(null);
+  const [lastMessageTime, setLastMessageTime] = useState<string | null>(null);
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heartbeatInterval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -44,6 +45,7 @@ export function useWebSocket() {
       try {
         const msg: WebSocketPayload = JSON.parse(event.data);
         setLastMessage(msg);
+        setLastMessageTime(new Date().toISOString());
         
         // Notify on high severity
         if (msg.topic === 'alert' && ['CRITICAL', 'HIGH'].includes(msg.data.severity)) {
@@ -83,5 +85,5 @@ export function useWebSocket() {
     };
   }, [connect]);
 
-  return { isConnected, lastMessage };
+  return { isConnected, lastMessage, lastMessageTime };
 }

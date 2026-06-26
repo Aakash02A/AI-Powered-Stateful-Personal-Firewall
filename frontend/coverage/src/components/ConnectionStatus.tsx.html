@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/components/ProtocolChart.tsx</title>
+    <title>Code coverage report for src/components/ConnectionStatus.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/components</a> ProtocolChart.tsx</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/components</a> ConnectionStatus.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -110,41 +110,24 @@
 <a name='L45'></a><a href='#L45'>45</a>
 <a name='L46'></a><a href='#L46'>46</a>
 <a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a>
-<a name='L49'></a><a href='#L49'>49</a>
-<a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a>
-<a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,7 +140,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -171,56 +153,53 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useQuery } from '@tanstack/react-query';
+import { useWebSocket } from '../hooks/useWebSocket';
+import { Activity, Wifi, WifiOff, AlertCircle } from 'lucide-react';
+import { apiClient } from '../api/client';
 &nbsp;
-interface ProtocolChartProps {
-  data: Record&lt;string, number&gt;;
-}
+export function ConnectionStatus() {
+  const { isConnected: isWsConnected, lastMessageTime } = useWebSocket('ws://localhost:8000/api/v1/ws');
+  
+  const { data: healthData, isError: isRestError } = useQuery({
+    queryKey: ['health'],
+    queryFn: () =&gt; apiClient.get('/health').then(res =&gt; res.data),
+    refetchInterval: 10000,
+    retry: 3,
+  });
 &nbsp;
-const COLORS = ['#38BDF8', '#818CF8', '#34D399', '#FBBF24', '#F87171', '#A78BFA'];
-&nbsp;
-export function ProtocolChart({ data }: ProtocolChartProps) {
-  if (!data || Object.keys(data).length === 0) {
-    return (
-      &lt;div className="glass-panel p-6 h-80 flex flex-col justify-center items-center"&gt;
-        &lt;h3 className="text-slate-400 font-medium text-sm tracking-wider uppercase mb-4 absolute top-6 left-6"&gt;Protocol Distribution&lt;/h3&gt;
-        &lt;p className="text-slate-500 text-sm"&gt;No protocol data available&lt;/p&gt;
-      &lt;/div&gt;
-    );
-  }
-&nbsp;
-  // Convert Record&lt;string, number&gt; to array format for Recharts
-  const chartData = Object.entries(data)
-    .map(([name, value]) =&gt; ({ name: name.toUpperCase(), value }))
-    .sort((a, b) =&gt; b.value - a.value);
+  const isRestConnected = !isRestError &amp;&amp; healthData?.status === 'healthy';
 &nbsp;
   return (
-    &lt;div className="glass-panel p-6 h-80 flex flex-col relative"&gt;
-      &lt;h3 className="text-slate-400 font-medium text-sm tracking-wider uppercase mb-4"&gt;Protocol Distribution&lt;/h3&gt;
-      &lt;div className="flex-1 w-full"&gt;
-        &lt;ResponsiveContainer width="100%" height="100%"&gt;
-          &lt;PieChart&gt;
-            &lt;Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={90}
-              paddingAngle={5}
-              dataKey="value"
-              stroke="none"
-            &gt;
-              {chartData.map((_entry, index) =&gt; (
-                &lt;Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} /&gt;
-              ))}
-            &lt;/Pie&gt;
-            &lt;Tooltip 
-              contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '0.5rem', color: '#F1F5F9' }}
-              itemStyle={{ color: '#F1F5F9' }}
-            /&gt;
-            &lt;Legend verticalAlign="bottom" height={36} /&gt;
-          &lt;/PieChart&gt;
-        &lt;/ResponsiveContainer&gt;
+    &lt;div className="flex items-center space-x-6 text-sm"&gt;
+      &lt;div className="flex items-center space-x-2"&gt;
+        &lt;span className="text-slate-400"&gt;REST API:&lt;/span&gt;
+        {isRestConnected ? (
+          &lt;span className="flex items-center text-success bg-success/10 px-2 py-0.5 rounded-full font-medium"&gt;
+            &lt;Wifi className="w-3.5 h-3.5 mr-1" /&gt; Online
+          &lt;/span&gt;
+        ) : (
+          &lt;span className="flex items-center text-danger bg-danger/10 px-2 py-0.5 rounded-full font-medium"&gt;
+            &lt;WifiOff className="w-3.5 h-3.5 mr-1" /&gt; Offline
+          &lt;/span&gt;
+        )}
+      &lt;/div&gt;
+&nbsp;
+      &lt;div className="flex items-center space-x-2"&gt;
+        &lt;span className="text-slate-400"&gt;Live Feed:&lt;/span&gt;
+        {isWsConnected ? (
+          &lt;span className="flex items-center text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium" title={lastMessageTime ? `Last message at ${new Date(lastMessageTime).toLocaleTimeString()}` : 'Connected'}&gt;
+            &lt;Activity className="w-3.5 h-3.5 mr-1 animate-pulse" /&gt; Connected
+          &lt;/span&gt;
+        ) : (
+          &lt;span className="flex items-center text-warning bg-warning/10 px-2 py-0.5 rounded-full font-medium"&gt;
+            &lt;AlertCircle className="w-3.5 h-3.5 mr-1" /&gt; Reconnecting...
+          &lt;/span&gt;
+        )}
       &lt;/div&gt;
     &lt;/div&gt;
   );

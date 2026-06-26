@@ -1,7 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { DataTable } from './DataTable';
 import { describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
+
+// Mock moved to setupTests.ts
 
 describe('DataTable', () => {
   const columns = [

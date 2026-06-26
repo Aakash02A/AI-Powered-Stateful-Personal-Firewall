@@ -14,6 +14,7 @@ export interface AlertData {
 
 interface AlertFeedProps {
   alerts: AlertData[];
+  onViewHistory?: () => void;
 }
 
 const SEVERITY_CONFIG = {
@@ -23,18 +24,28 @@ const SEVERITY_CONFIG = {
   LOW: { icon: ShieldCheck, color: 'text-success', bg: 'bg-success/10 border-success/20' },
 };
 
-export function AlertFeed({ alerts }: AlertFeedProps) {
+export function AlertFeed({ alerts, onViewHistory }: AlertFeedProps) {
   return (
     <div className="glass-panel flex flex-col h-[400px]">
       <div className="p-6 border-b border-slate-700/50 flex justify-between items-center">
-        <h3 className="text-slate-400 font-medium text-sm tracking-wider uppercase">Live Threat Feed</h3>
-        <span className="flex items-center text-xs text-slate-500">
-          <span className="relative flex h-2 w-2 mr-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+        <div className="flex flex-col">
+          <h3 className="text-slate-400 font-medium text-sm tracking-wider uppercase">Live Threat Feed</h3>
+          <span className="flex items-center text-xs text-slate-500 mt-1">
+            <span className="relative flex h-2 w-2 mr-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            Live Monitoring
           </span>
-          Live Monitoring
-        </span>
+        </div>
+        {onViewHistory && (
+          <button 
+            onClick={onViewHistory}
+            className="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-1.5 rounded transition-colors"
+          >
+            History
+          </button>
+        )}
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
