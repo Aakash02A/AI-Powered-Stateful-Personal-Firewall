@@ -1,4 +1,3 @@
-import pytest
 from analytics.threat_scoring import ThreatScoringEngine
 
 
