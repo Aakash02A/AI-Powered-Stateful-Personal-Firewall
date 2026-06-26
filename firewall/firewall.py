@@ -5,20 +5,23 @@ from typing import Dict, Any
 from scapy.all import send, IP, TCP, ICMP, UDP
 
 from firewall.packet_capture import PacketCapture
-from firewall.connection_tracker import ConnectionTracker
+from analytics.flow_engine import FlowEngine
 from firewall.rule_engine import RuleEngine
 from firewall.ids_engine import IDSEngine
 from firewall.database import FirewallDatabase
 from firewall.models import FirewallEvent
 from firewall.logger import setup_logger
+from firewall.queue_manager import QueueManager
+from firewall.db_writer import DBWriter
 
 class PersonalFirewall:
     def __init__(self, config_path: str = "firewall/config/rules.json", db_path: str = "sqlite:///firewall.db"):
         self.packet_capture = PacketCapture()
         self.rule_engine = RuleEngine()
-        self.connection_tracker = ConnectionTracker()
-        self.ids_engine = IDSEngine(self.connection_tracker)
-        self.database = FirewallDatabase(db_path=db_path)
+        self.flow_engine = FlowEngine()
+        self.ids_engine = IDSEngine(self.flow_engine)
+        self.queue_manager = QueueManager()
+        self.db_writer = DBWriter(db_path=db_path)
         self.packet_logger = setup_logger("packet_logger", "packets.log")
         self.event_logger = setup_logger("event_logger", "events.log")
         self.running = False
@@ -38,6 +41,9 @@ class PersonalFirewall:
         self.running = True
         self.start_time = datetime.now()
         
+        # Start DB Writer
+        self.db_writer.start()
+        
         # Start cleanup thread for tracker
         self.cleanup_thread = threading.Thread(target=self._cleanup_loop, daemon=True)
         self.cleanup_thread.start()
@@ -49,11 +55,12 @@ class PersonalFirewall:
     def stop(self):
         self.running = False
         self.packet_capture.stop_capture()
+        self.db_writer.stop()
         print("[*] Firewall stopped.")
 
     def _cleanup_loop(self):
         while self.running:
-            self.connection_tracker.clean_expired()
+            self.flow_engine.clean_expired()
             time.sleep(10)
 
     def _process_packet(self, packet):
@@ -61,7 +68,7 @@ class PersonalFirewall:
         self.bytes_processed += packet.size
         
         # Update connection state
-        connection = self.connection_tracker.update_state(packet)
+        connection = self.flow_engine.process_packet(packet)
         
         # Evaluate against rules
         action, rule = self.rule_engine.evaluate_packet(packet)
@@ -86,6 +93,12 @@ class PersonalFirewall:
                 # If running without privileges, sending might fail. Log it internally.
                 self.event_logger.error(f"Failed to send block response: {e}")
             
+        # Run IDS
+        alerts = self.ids_engine.analyze_packet(packet)
+        for alert in alerts:
+            self.queue_manager.push(alert)
+            print(f"[!] ALERT: {alert.description}")
+            
         # Log firewall event if it was matched or blocked/logged
         if action != "allow" or rule_id != "default_allow_established":
             event = FirewallEvent(
@@ -99,8 +112,7 @@ class PersonalFirewall:
                 protocol=packet.protocol,
                 reason=rule.description if rule else "No matching rule"
             )
-            # Depending on load, might want to batch writes
-            self.database.log_event(event)
+            self.queue_manager.push(event)
             
             self.event_logger.info(
                 "Firewall Event", 
@@ -112,8 +124,10 @@ class PersonalFirewall:
                 }}
             )
 
-        # Log packet as requested by spec
-        self.database.log_packet(packet)
+        # Limited Packet Retention (Only save if alert triggered or blocked)
+        if len(alerts) > 0 or action == "block":
+            self.queue_manager.push(packet)
+            
         self.packet_logger.info(
             "Packet captured",
             extra={"extra_data": {
@@ -122,12 +136,6 @@ class PersonalFirewall:
                 "protocol": packet.protocol, "size": packet.size, "flags": packet.flags
             }}
         )
-
-        # Run IDS
-        alerts = self.ids_engine.analyze_packet(packet)
-        for alert in alerts:
-            self.database.log_alert(alert)
-            print(f"[!] ALERT: {alert.description}")
 
     def get_stats(self) -> Dict[str, Any]:
         uptime = (datetime.now() - self.start_time).total_seconds() if self.start_time else 0
@@ -140,5 +148,5 @@ class PersonalFirewall:
             "bytes_processed": self.bytes_processed,
             "pps": pps,
             "mbps": mbps,
-            "active_connections": len(self.connection_tracker.active_connections)
+            "active_connections": len(self.flow_engine.active_connections)
         }

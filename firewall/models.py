@@ -28,6 +28,14 @@ class Connection:
     packets_out: int = 0
     bytes_in: int = 0
     bytes_out: int = 0
+    
+    # Phase 2 Analytics Fields
+    flow_start: Optional[datetime] = None
+    flow_end: Optional[datetime] = None
+    duration: float = 0.0
+    avg_packet_size: float = 0.0
+    packet_rate: float = 0.0
+    byte_rate: float = 0.0
 
 @dataclass
 class FirewallRule:

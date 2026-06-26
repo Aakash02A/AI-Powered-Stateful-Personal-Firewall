@@ -2,11 +2,11 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Optional, List
 from firewall.models import Packet, Alert
-from firewall.connection_tracker import ConnectionTracker
+from analytics.flow_engine import FlowEngine
 
 class IDSEngine:
-    def __init__(self, connection_tracker: ConnectionTracker):
-        self.tracker = connection_tracker
+    def __init__(self, flow_engine: FlowEngine):
+        self.tracker = flow_engine
         self.port_scan_threshold = 10  # unique ports in 10 seconds
         self.syn_flood_threshold = 50  # SYN packets in 5 seconds
         self.icmp_flood_threshold = 100  # ICMP packets in 5 seconds

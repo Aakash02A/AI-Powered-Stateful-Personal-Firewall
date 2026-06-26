@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, Mapped, mapped_column
-from typing import List, Optional
+from typing import List, Optional, Any
 from firewall.models import Packet, Connection, FirewallEvent, Alert
 
 Base = declarative_base()
@@ -58,6 +58,44 @@ class AlertRecord(Base):
     description: Mapped[str] = mapped_column(String)
     action_taken = Column(String)
 
+# Phase 2 Analytics Tables
+class ThreatIntelligenceRecord(Base):
+    __tablename__ = 'threat_intelligence'
+    ip_address: Mapped[str] = mapped_column(String, primary_key=True)
+    threat_score: Mapped[float] = mapped_column(Float, index=True)
+    classification: Mapped[str] = mapped_column(String)
+    last_updated: Mapped[datetime] = mapped_column(DateTime)
+
+class HourlyTrafficAggregateRecord(Base):
+    __tablename__ = 'hourly_traffic_aggregates'
+    timestamp: Mapped[datetime] = mapped_column(DateTime, primary_key=True)
+    total_bytes: Mapped[int] = mapped_column(Integer)
+    total_connections: Mapped[int] = mapped_column(Integer)
+    total_packets: Mapped[int] = mapped_column(Integer)
+
+class DailyTrafficAggregateRecord(Base):
+    __tablename__ = 'daily_traffic_aggregates'
+    timestamp: Mapped[datetime] = mapped_column(DateTime, primary_key=True)
+    total_bytes: Mapped[int] = mapped_column(Integer)
+    total_connections: Mapped[int] = mapped_column(Integer)
+    total_packets: Mapped[int] = mapped_column(Integer)
+
+class ProtocolStatisticsRecord(Base):
+    __tablename__ = 'protocol_statistics'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, index=True)
+    protocol: Mapped[str] = mapped_column(String)
+    bytes: Mapped[int] = mapped_column(Integer)
+    connections: Mapped[int] = mapped_column(Integer)
+
+class PortStatisticsRecord(Base):
+    __tablename__ = 'port_statistics'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, index=True)
+    port: Mapped[int] = mapped_column(Integer)
+    bytes: Mapped[int] = mapped_column(Integer)
+    connections: Mapped[int] = mapped_column(Integer)
+
 class FirewallDatabase:
     def __init__(self, db_path: str = "sqlite:///firewall.db"):
         self.engine = create_engine(db_path, connect_args={"check_same_thread": False})
@@ -109,6 +147,40 @@ class FirewallDatabase:
             action_taken=alert.action_taken
         )
         session.add(record)
+        session.commit()
+        session.close()
+
+    def bulk_insert(self, items: List[Any]):
+        session = self.Session()
+        records = []
+        for item in items:
+            if isinstance(item, Packet):
+                records.append(PacketRecord(
+                    timestamp=item.timestamp, src_ip=item.src_ip, src_port=item.src_port,
+                    dst_ip=item.dst_ip, dst_port=item.dst_port, protocol=item.protocol,
+                    packet_size=item.size, flags=item.flags
+                ))
+            elif isinstance(item, Connection):
+                records.append(ConnectionRecord(
+                    src_ip=item.src_ip, src_port=item.src_port, dst_ip=item.dst_ip,
+                    dst_port=item.dst_port, protocol=item.protocol, state=item.state,
+                    creation_time=item.creation_time, end_time=item.flow_end,
+                    packets_in=item.packets_in, packets_out=item.packets_out,
+                    bytes_in=item.bytes_in, bytes_out=item.bytes_out
+                ))
+            elif isinstance(item, FirewallEvent):
+                records.append(FirewallEventRecord(
+                    timestamp=item.timestamp, rule_id=item.rule_id, action=item.action,
+                    src_ip=item.src_ip, src_port=item.src_port, dst_ip=item.dst_ip,
+                    dst_port=item.dst_port, protocol=item.protocol, reason=item.reason
+                ))
+            elif isinstance(item, Alert):
+                records.append(AlertRecord(
+                    timestamp=item.timestamp, alert_type=item.alert_type, severity=item.severity,
+                    src_ip=item.src_ip, dst_ip=item.dst_ip, description=item.description,
+                    action_taken=item.action_taken
+                ))
+        session.bulk_save_objects(records)
         session.commit()
         session.close()
     
