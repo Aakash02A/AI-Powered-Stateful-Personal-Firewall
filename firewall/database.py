@@ -258,3 +258,16 @@ class FirewallDatabase:
             r.pop("_sa_instance_state", None)
         session.close()
         return result
+
+    def mark_alert_false_positive(self, alert_id: int) -> bool:
+        session = self.Session()
+        record = session.query(AlertRecord).filter(AlertRecord.id == alert_id).first()
+        if record:
+            record.action_taken = "false_positive"
+            record.severity = "LOW"
+            session.commit()
+            success = True
+        else:
+            success = False
+        session.close()
+        return success

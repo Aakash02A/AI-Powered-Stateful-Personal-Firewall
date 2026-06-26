@@ -8,7 +8,7 @@ import { type AlertData } from '../components/AlertFeed';
 export function Alerts() {
   const [severityFilter, setSeverityFilter] = useState<string>('');
 
-  const { data: response, isLoading } = useQuery({
+  const { data: response, isLoading, refetch } = useQuery({
     queryKey: ['alerts', severityFilter],
     queryFn: () => {
       const params = new URLSearchParams();
@@ -20,6 +20,15 @@ export function Alerts() {
   });
 
   const alerts: AlertData[] = response?.data || [];
+
+  const markFalsePositive = async (id: number) => {
+    try {
+      await apiClient.post(`/alerts/${id}/false-positive`);
+      refetch();
+    } catch (e) {
+      console.error("Failed to mark false positive", e);
+    }
+  };
 
   const columns: Column<AlertData>[] = [
     {
@@ -56,9 +65,19 @@ export function Alerts() {
       header: 'Action', 
       sortable: true,
       render: (row) => (
-        <span className="uppercase text-xs tracking-wider text-slate-400 bg-slate-800 px-2 py-1 rounded">
-          {row.action_taken}
-        </span>
+        <div className="flex items-center space-x-2">
+          <span className="uppercase text-xs tracking-wider text-slate-400 bg-slate-800 px-2 py-1 rounded">
+            {row.action_taken}
+          </span>
+          {row.alert_type === 'ml_anomaly' && row.action_taken !== 'false_positive' && (
+            <button
+              onClick={() => markFalsePositive(row.id!)}
+              className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded transition-colors"
+            >
+              Mark False Positive
+            </button>
+          )}
+        </div>
       )
     },
   ];

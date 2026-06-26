@@ -5,7 +5,7 @@ export interface AlertData {
   id?: number;
   timestamp: string;
   alert_type: string;
-  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  severity: string;
   src_ip: string;
   dst_ip: string;
   description: string;

@@ -1,6 +1,8 @@
+import json
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import List, Optional
+from pathlib import Path
 
 from analytics.flow_engine import FlowEngine
 from firewall.event_bus import EventBus
@@ -9,15 +11,46 @@ from ml.ml_detector import MLAnomalyDetector
 
 
 class IDSEngine:
-    def __init__(self, flow_engine: FlowEngine):
+    def __init__(self, flow_engine: FlowEngine, config_path: str = "firewall/config/ids_config.json"):
         self.tracker = flow_engine
-        self.port_scan_threshold = 10  # unique ports in 10 seconds
-        self.syn_flood_threshold = 50  # SYN packets in 5 seconds
-        self.icmp_flood_threshold = 100  # ICMP packets in 5 seconds
-        self.brute_force_threshold = 5  # Failed attempts in 30 seconds
-        self.whitelist = {"127.0.0.1"}
         self.event_bus = EventBus()
         self.ml_detector = MLAnomalyDetector()
+        
+        self.config_path = config_path
+        self._load_config()
+
+        self.whitelist = {"127.0.0.1"}
+
+    def _load_config(self):
+        try:
+            path = Path(self.config_path)
+            if path.exists():
+                with open(path, "r") as f:
+                    config = json.load(f)
+                self.port_scan_threshold = config.get("port_scan_threshold", 10)
+                self.syn_flood_threshold = config.get("syn_flood_threshold", 50)
+                self.icmp_flood_threshold = config.get("icmp_flood_threshold", 100)
+                self.brute_force_threshold = config.get("brute_force_threshold", 5)
+                
+                windows = config.get("time_windows", {})
+                self.window_port_scan = windows.get("port_scan", 10)
+                self.window_syn_flood = windows.get("syn_flood", 5)
+                self.window_icmp_flood = windows.get("icmp_flood", 5)
+                self.window_brute_force = windows.get("brute_force", 30)
+            else:
+                self._set_default_config()
+        except Exception:
+            self._set_default_config()
+
+    def _set_default_config(self):
+        self.port_scan_threshold = 10
+        self.syn_flood_threshold = 50
+        self.icmp_flood_threshold = 100
+        self.brute_force_threshold = 5
+        self.window_port_scan = 10
+        self.window_syn_flood = 5
+        self.window_icmp_flood = 5
+        self.window_brute_force = 30
 
         # Tracking state
         self.syn_packets = defaultdict(list)
@@ -76,7 +109,7 @@ class IDSEngine:
 
         key = (packet.src_ip, packet.dst_ip, packet.dst_port)
         self.brute_force[key].append(packet.timestamp)
-        self._cleanup_old_records(self.brute_force, 30)
+        self._cleanup_old_records(self.brute_force, self.window_brute_force)
 
         if len(self.brute_force[key]) > self.brute_force_threshold:
             self.brute_force[key].clear()
@@ -95,7 +128,7 @@ class IDSEngine:
             return None
 
         self.port_scans[packet.src_ip].add((packet.timestamp, packet.dst_port))
-        self._cleanup_old_records(self.port_scans, 10)
+        self._cleanup_old_records(self.port_scans, self.window_port_scan)
 
         unique_ports = len({port for _, port in self.port_scans[packet.src_ip]})
         if unique_ports > self.port_scan_threshold:
@@ -116,7 +149,7 @@ class IDSEngine:
 
         key = (packet.src_ip, packet.dst_ip, packet.dst_port)
         self.syn_packets[key].append(packet.timestamp)
-        self._cleanup_old_records(self.syn_packets, 5)
+        self._cleanup_old_records(self.syn_packets, self.window_syn_flood)
 
         if len(self.syn_packets[key]) > self.syn_flood_threshold:
             self.syn_packets[key].clear()
@@ -135,7 +168,7 @@ class IDSEngine:
             return None
 
         self.icmp_packets[packet.src_ip].append(packet.timestamp)
-        self._cleanup_old_records(self.icmp_packets, 5)
+        self._cleanup_old_records(self.icmp_packets, self.window_icmp_flood)
 
         if len(self.icmp_packets[packet.src_ip]) > self.icmp_flood_threshold:
             self.icmp_packets[packet.src_ip].clear()
@@ -181,14 +214,14 @@ class IDSEngine:
 
         self.ml_last_eval[key] = now
 
-        is_anomalous = self.ml_detector.evaluate_connection(conn)
+        is_anomalous, score = self.ml_detector.evaluate_connection(conn)
         if is_anomalous:
             return Alert(
                 alert_type="ml_anomaly",
                 severity="high",
                 src_ip=conn.src_ip,
                 dst_ip=conn.dst_ip,
-                description=f"ML Anomaly detected for flow {conn.src_ip}:{conn.src_port} -> {conn.dst_ip}:{conn.dst_port}",
+                description=f"ML Anomaly (score: {score:.3f}) detected for flow {conn.src_ip}:{conn.src_port} -> {conn.dst_ip}:{conn.dst_port}",
                 action_taken="log",
             )
         return None

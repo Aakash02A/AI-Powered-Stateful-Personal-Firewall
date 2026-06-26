@@ -1,0 +1,12 @@
+{
+  "port_scan_threshold": 10,
+  "syn_flood_threshold": 50,
+  "icmp_flood_threshold": 100,
+  "brute_force_threshold": 5,
+  "time_windows": {
+    "port_scan": 10,
+    "syn_flood": 5,
+    "icmp_flood": 5,
+    "brute_force": 30
+  }
+}
