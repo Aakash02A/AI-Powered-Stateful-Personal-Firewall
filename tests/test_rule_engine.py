@@ -1,8 +1,10 @@
-import pytest
 from datetime import datetime
-from firewall.models import Packet, FirewallRule
-from firewall.rule_engine import RuleEngine
+
+import pytest
+
 import firewall.rule_engine
+from firewall.models import FirewallRule, Packet
+from firewall.rule_engine import RuleEngine
 
 
 @pytest.fixture

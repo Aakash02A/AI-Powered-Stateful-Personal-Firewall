@@ -1,6 +1,7 @@
+import pytest
 from click.testing import CliRunner
+
 from firewall.cli import cli
-from firewall.firewall import PersonalFirewall
 
 
 @pytest.fixture
@@ -30,10 +31,11 @@ def test_cli_rules(runner, tmp_path):
 
 
 def test_cli_alerts(runner, tmp_path):
+    import unittest.mock
+    from datetime import datetime
+
     from firewall.database import FirewallDatabase
     from firewall.models import Alert
-    from datetime import datetime
-    import unittest.mock
 
     db = FirewallDatabase("sqlite:///:memory:")
     db.log_alert(
@@ -47,8 +49,9 @@ def test_cli_alerts(runner, tmp_path):
 
 
 def test_cli_queries(runner):
-    from firewall.database import FirewallDatabase
     import unittest.mock
+
+    from firewall.database import FirewallDatabase
 
     db = FirewallDatabase("sqlite:///:memory:")
 

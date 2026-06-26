@@ -1,7 +1,8 @@
 from datetime import datetime
-from firewall.models import Packet
+
 from firewall.connection_tracker import ConnectionTracker
 from firewall.ids_engine import IDSEngine
+from firewall.models import Packet
 
 
 def test_brute_force_detection():

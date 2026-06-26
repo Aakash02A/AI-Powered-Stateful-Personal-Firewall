@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-from firewall.models import Packet
+
 from firewall.connection_tracker import ConnectionTracker
+from firewall.models import Packet
 
 
 def test_connection_tracker_states():
@@ -96,12 +97,9 @@ def test_connection_tracker_expiration():
 
     # Verify last_activity updates
     initial_activity = conn.last_activity
-    import time
-
-    time.sleep(0.01)  # ensure time difference
 
     p2 = Packet(
-        timestamp=datetime.now(),
+        timestamp=p1.timestamp + timedelta(seconds=1),
         src_ip="10.0.0.2",
         src_port=80,
         dst_ip="10.0.0.1",

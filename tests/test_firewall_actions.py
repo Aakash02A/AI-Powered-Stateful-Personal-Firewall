@@ -1,7 +1,7 @@
-
 from datetime import datetime
+
 from firewall.firewall import PersonalFirewall
-from firewall.models import Packet, FirewallRule
+from firewall.models import FirewallRule, Packet
 
 
 def test_firewall_block_action(tmp_path):

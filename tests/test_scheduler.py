@@ -1,4 +1,5 @@
 import time
+
 from analytics.scheduler import JobScheduler
 
 
@@ -13,7 +14,10 @@ def test_scheduler():
     scheduler.start()
 
     # Wait for interval to trigger
-    time.sleep(1.5)
+    start_time = time.time()
+    while test_val[0] < 1 and time.time() - start_time < 5:
+        time.sleep(0.1)
+
     scheduler.stop()
 
     assert test_val[0] >= 1

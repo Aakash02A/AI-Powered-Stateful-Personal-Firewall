@@ -1,5 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
     API_KEY: str = "default_dev_key"
@@ -13,6 +15,9 @@ class Settings(BaseSettings):
     WEBSOCKET_HEARTBEAT_INTERVAL: int = 30
     DATABASE_URL: str = "sqlite:///data/firewall.db"
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
+
 
 settings = Settings()

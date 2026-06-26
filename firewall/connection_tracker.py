@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple
-from firewall.models import Packet, Connection
+from typing import Dict, Tuple
+
+from firewall.models import Connection, Packet
+
 
 class ConnectionTracker:
     def __init__(self, timeout: int = 300, syn_timeout: int = 30):
@@ -11,26 +13,50 @@ class ConnectionTracker:
     def _get_connection_key(self, packet: Packet) -> Tuple[str, int, str, int, str]:
         # Sort IPs and ports to ensure bidirectional matching
         if packet.src_ip < packet.dst_ip:
-            return (packet.src_ip, packet.src_port, packet.dst_ip, packet.dst_port, packet.protocol)
+            return (
+                packet.src_ip,
+                packet.src_port,
+                packet.dst_ip,
+                packet.dst_port,
+                packet.protocol,
+            )
         elif packet.src_ip > packet.dst_ip:
-            return (packet.dst_ip, packet.dst_port, packet.src_ip, packet.src_port, packet.protocol)
+            return (
+                packet.dst_ip,
+                packet.dst_port,
+                packet.src_ip,
+                packet.src_port,
+                packet.protocol,
+            )
         else:
             if packet.src_port <= packet.dst_port:
-                return (packet.src_ip, packet.src_port, packet.dst_ip, packet.dst_port, packet.protocol)
+                return (
+                    packet.src_ip,
+                    packet.src_port,
+                    packet.dst_ip,
+                    packet.dst_port,
+                    packet.protocol,
+                )
             else:
-                return (packet.dst_ip, packet.dst_port, packet.src_ip, packet.src_port, packet.protocol)
+                return (
+                    packet.dst_ip,
+                    packet.dst_port,
+                    packet.src_ip,
+                    packet.src_port,
+                    packet.protocol,
+                )
 
     def update_state(self, packet: Packet) -> Connection:
         key = self._get_connection_key(packet)
         now = datetime.now()
-        
+
         if key not in self.active_connections:
             # Create new connection
             state = "NEW"
             if packet.protocol == "TCP":
                 if "S" in packet.flags and "A" not in packet.flags:
                     state = "SYN_SENT"
-            
+
             conn = Connection(
                 src_ip=packet.src_ip,
                 src_port=packet.src_port,
@@ -43,13 +69,13 @@ class ConnectionTracker:
                 packets_in=0,
                 packets_out=0,
                 bytes_in=0,
-                bytes_out=0
+                bytes_out=0,
             )
             self.active_connections[key] = conn
 
         conn = self.active_connections[key]
         conn.last_activity = now
-        
+
         # Update metrics
         if packet.src_ip == conn.src_ip:
             conn.packets_out += 1
@@ -57,7 +83,7 @@ class ConnectionTracker:
         else:
             conn.packets_in += 1
             conn.bytes_in += packet.size
-            
+
         # Update TCP State Machine
         if packet.protocol == "TCP":
             flags = packet.flags
@@ -65,7 +91,11 @@ class ConnectionTracker:
                 conn.state = "SYN_RECV"
             elif conn.state == "SYN_RECV" and "A" in flags and "S" not in flags:
                 conn.state = "ESTABLISHED"
-            elif conn.state in ("NEW", "SYN_SENT", "SYN_RECV") and "A" in flags and "S" not in flags:
+            elif (
+                conn.state in ("NEW", "SYN_SENT", "SYN_RECV")
+                and "A" in flags
+                and "S" not in flags
+            ):
                 # Catch-all for established connections where we missed the handshake
                 conn.state = "ESTABLISHED"
             elif "F" in flags:
@@ -75,7 +105,7 @@ class ConnectionTracker:
                     conn.state = "CLOSED"
             elif "R" in flags:
                 conn.state = "CLOSED"
-                
+
         return conn
 
     def clean_expired(self):
@@ -91,7 +121,7 @@ class ConnectionTracker:
             else:
                 if now - conn.last_activity > timedelta(seconds=self.timeout):
                     expired_keys.append(key)
-                    
+
         for key in expired_keys:
             del self.active_connections[key]
 
@@ -99,4 +129,4 @@ class ConnectionTracker:
         # returns sorted by last activity
         conns = list(self.active_connections.values())
         conns.sort(key=lambda x: x.last_activity, reverse=True)
-        return conns[offset:offset+limit]
+        return conns[offset : offset + limit]

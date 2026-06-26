@@ -1,4 +1,5 @@
-from scapy.all import IP, TCP, UDP, ICMP
+from scapy.all import ICMP, IP, TCP, UDP
+
 from firewall.packet_capture import PacketCapture
 
 

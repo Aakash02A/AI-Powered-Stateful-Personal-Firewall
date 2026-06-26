@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
+
 @dataclass
 class Packet:
     timestamp: datetime
@@ -13,6 +14,7 @@ class Packet:
     flags: str  # TCP flags, e.g., 'S', 'SA', 'F', 'PA'
     size: int
     raw: Optional[bytes] = None
+
 
 @dataclass
 class Connection:
@@ -28,7 +30,7 @@ class Connection:
     packets_out: int = 0
     bytes_in: int = 0
     bytes_out: int = 0
-    
+
     # Phase 2 Analytics Fields
     flow_start: Optional[datetime] = None
     flow_end: Optional[datetime] = None
@@ -37,19 +39,21 @@ class Connection:
     packet_rate: float = 0.0
     byte_rate: float = 0.0
 
+
 @dataclass
 class FirewallRule:
     rule_id: str
     priority: int
     enabled: bool
     protocol: str  # tcp, udp, icmp, any
-    src_ip: str    # IP, CIDR, wildcard (any)
+    src_ip: str  # IP, CIDR, wildcard (any)
     src_port: str  # port, range, any
     dst_ip: str
     dst_port: str
     direction: str  # inbound, outbound, both
-    action: str     # allow, block, drop, log
+    action: str  # allow, block, drop, log
     description: str
+
 
 @dataclass
 class FirewallEvent:
@@ -62,6 +66,7 @@ class FirewallEvent:
     dst_port: int
     protocol: str
     reason: str
+
 
 @dataclass
 class Alert:

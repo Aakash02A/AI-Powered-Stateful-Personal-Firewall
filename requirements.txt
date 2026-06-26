@@ -21,3 +21,4 @@ black>=23.3.0
 isort>=5.12.0
 flake8>=6.0.0
 cyclonedx-bom>=3.11.0
+httpx>=0.22.0

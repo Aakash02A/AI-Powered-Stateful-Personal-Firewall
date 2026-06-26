@@ -1,8 +1,9 @@
-import pytest
-import os
 from datetime import datetime
-from firewall.models import Packet, Connection, FirewallEvent, Alert
+
+import pytest
+
 from firewall.database import FirewallDatabase
+from firewall.models import Alert, Packet
 
 
 @pytest.fixture

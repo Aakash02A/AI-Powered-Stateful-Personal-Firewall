@@ -1,9 +1,12 @@
 import threading
-from typing import Callable, Optional
 from datetime import datetime
-from scapy.all import sniff, IP, TCP, UDP, ICMP
-from firewall.models import Packet
+from typing import Callable, Optional
+
+from scapy.all import ICMP, IP, TCP, UDP, sniff
+
 from firewall.logger import thread_safe_run
+from firewall.models import Packet
+
 
 class PacketCapture:
     def __init__(self, interface: Optional[str] = None):
@@ -12,7 +15,7 @@ class PacketCapture:
         self.thread: Optional[threading.Thread] = None
 
     def _packet_handler(self, raw_packet, callback: Callable):
-        if not IP in raw_packet:
+        if IP not in raw_packet:
             return
 
         ip_layer = raw_packet[IP]
@@ -20,7 +23,7 @@ class PacketCapture:
         src_port = 0
         dst_port = 0
         flags = ""
-        
+
         if TCP in raw_packet:
             protocol = "TCP"
             src_port = raw_packet[TCP].sport
@@ -32,7 +35,7 @@ class PacketCapture:
             dst_port = raw_packet[UDP].dport
         elif ICMP in raw_packet:
             protocol = "ICMP"
-            
+
         packet = Packet(
             timestamp=datetime.now(),
             src_ip=ip_layer.src,
@@ -42,7 +45,7 @@ class PacketCapture:
             protocol=protocol,
             flags=flags,
             size=len(raw_packet),
-            raw=bytes(raw_packet)
+            raw=bytes(raw_packet),
         )
         callback(packet)
 
@@ -51,21 +54,23 @@ class PacketCapture:
             sniff(
                 prn=lambda p: self._packet_handler(p, callback),
                 store=False,
-                stop_filter=lambda p: not self.running
+                stop_filter=lambda p: not self.running,
             )
         except Exception as e:
             if "winpcap is not installed" in str(e).lower():
-                print("[!] Windows PCAP not found. Packet capture disabled. Use simulation script.")
+                print(
+                    "[!] Windows PCAP not found. Packet capture disabled. Use simulation script."
+                )
             else:
                 raise
 
     def start_capture(self, callback: Callable, on_crash=None):
         self.running = True
-        
+
         @thread_safe_run("PacketCapture", on_crash=on_crash)
         def run_sniff():
             self._start_sniffing(callback)
-            
+
         self.thread = threading.Thread(target=run_sniff, daemon=False)
         self.thread.start()
 

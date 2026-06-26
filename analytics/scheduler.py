@@ -1,6 +1,7 @@
 import threading
 import time
-from typing import Callable, List, Dict
+from typing import Callable, Dict, List
+
 
 class JobScheduler:
     def __init__(self):
@@ -9,11 +10,9 @@ class JobScheduler:
         self.thread = None
 
     def register_job(self, func: Callable, interval_seconds: int):
-        self.jobs.append({
-            "func": func,
-            "interval": interval_seconds,
-            "last_run": time.time()
-        })
+        self.jobs.append(
+            {"func": func, "interval": interval_seconds, "last_run": time.time()}
+        )
 
     def start(self):
         self.running = True
@@ -33,6 +32,8 @@ class JobScheduler:
                     try:
                         job["func"]()
                     except Exception as e:
-                        print(f"[Scheduler] Error running job {job['func'].__name__}: {e}")
+                        print(
+                            f"[Scheduler] Error running job {job['func'].__name__}: {e}"
+                        )
                     job["last_run"] = time.time()
             time.sleep(1)

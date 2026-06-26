@@ -1,17 +1,23 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field
+
 
 #
 # Generic Responses
 #
 class GenericResponse(BaseModel):
     status: str = Field("success", json_schema_extra={"example": "success"})
-    message: Optional[str] = Field(None, json_schema_extra={"example": "Operation completed successfully"})
+    message: Optional[str] = Field(
+        None, json_schema_extra={"example": "Operation completed successfully"}
+    )
+
 
 #
 # Models mirroring internal dataclasses but adapted for API responses
 #
+
 
 class AlertModel(BaseModel):
     id: Optional[int] = Field(None, description="Database ID if persisted")
@@ -20,10 +26,13 @@ class AlertModel(BaseModel):
     severity: str = Field(..., json_schema_extra={"example": "high"})
     src_ip: str = Field(..., json_schema_extra={"example": "192.168.1.100"})
     dst_ip: str = Field(..., json_schema_extra={"example": "10.0.0.1"})
-    description: str = Field(..., json_schema_extra={"example": "Detected port scan from 192.168.1.100"})
+    description: str = Field(
+        ..., json_schema_extra={"example": "Detected port scan from 192.168.1.100"}
+    )
     action_taken: str = Field(..., json_schema_extra={"example": "log"})
 
     model_config = {"from_attributes": True}
+
 
 class ConnectionModel(BaseModel):
     id: Optional[int] = Field(None)
@@ -43,29 +52,36 @@ class ConnectionModel(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
 #
 # Endpoint Response Models
 #
+
 
 class StatsResponse(BaseModel):
     status: str = "success"
     data: Dict[str, Any]
 
+
 class TopTalkersResponse(BaseModel):
     status: str = "success"
     data: List[Dict[str, Any]]
+
 
 class AlertsResponse(BaseModel):
     status: str = "success"
     data: List[AlertModel]
 
+
 class ConnectionsResponse(BaseModel):
     status: str = "success"
     data: List[ConnectionModel]
 
+
 class ProtocolStatsResponse(BaseModel):
     status: str = "success"
     data: Dict[str, Any]
+
 
 class WebSocketMessage(BaseModel):
     topic: str = Field(..., json_schema_extra={"example": "alert"})

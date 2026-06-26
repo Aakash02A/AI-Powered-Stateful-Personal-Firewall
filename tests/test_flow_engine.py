@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-from firewall.models import Packet
+
 from analytics.flow_engine import FlowEngine
+from firewall.models import Packet
 
 
 def test_canonical_flow():

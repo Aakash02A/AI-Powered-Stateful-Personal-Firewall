@@ -1,4 +1,3 @@
-
 from firewall.queue_manager import QueueManager
 
 

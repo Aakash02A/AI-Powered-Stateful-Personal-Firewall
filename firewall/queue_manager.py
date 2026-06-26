@@ -1,5 +1,6 @@
 import queue
 
+
 class QueueManager:
     _instance = None
 
@@ -11,13 +12,13 @@ class QueueManager:
 
     def push(self, item):
         self.q.put(item)
-        
+
     def pop(self, timeout=1.0):
         try:
             return self.q.get(timeout=timeout)
         except queue.Empty:
             return None
-            
+
     def qsize(self):
         return self.q.qsize()
 

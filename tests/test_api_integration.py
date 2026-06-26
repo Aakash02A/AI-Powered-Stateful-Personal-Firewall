@@ -1,7 +1,8 @@
-
+import pytest
 from fastapi.testclient import TestClient
-from api.main import app
+
 from api.config import settings
+from api.main import app
 
 client = TestClient(app)
 
@@ -55,7 +56,7 @@ def test_websocket_auth():
     with pytest.raises(
         Exception
     ):  # websocket.exceptions.ConnectionClosedError or similar depending on test client
-        with client.websocket_connect("/api/v1/ws/stream") as websocket:
+        with client.websocket_connect("/api/v1/ws/stream"):
             pass
 
 
