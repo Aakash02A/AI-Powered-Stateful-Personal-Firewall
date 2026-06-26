@@ -6,7 +6,7 @@
 
 A Next-Generation Personal Firewall (NGFW) built in Python that combines stateful packet inspection, rule-based filtering, signature-based IDS, highly-concurrent database logging, and a robust REST API for dashboards.
 
-For a detailed view of the architecture, please see [Architecture Documentation](doc/ARCHITECTURE.md).
+For a detailed view of the architecture, please see [Architecture Documentation](ARCHITECTURE.md).
 
 ## 🚀 Features
 
@@ -27,7 +27,7 @@ For a detailed view of the architecture, please see [Architecture Documentation]
 
 The firewall architecture handles extremely high traffic gracefully using an event-driven queueing model. 
 
-For an in-depth view of the asynchronous queuing and Thread Health Monitoring, see [ARCHITECTURE.md](doc/ARCHITECTURE.md).
+For an in-depth view of the asynchronous queuing and Thread Health Monitoring, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
@@ -72,7 +72,7 @@ We recommend using Docker Compose for an isolated, secure deployment. The contai
 ```bash
 docker-compose up -d
 ```
-See [DEPLOYMENT.md](doc/DEPLOYMENT.md) for environment profile specifics.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for environment profile specifics.
 
 ---
 

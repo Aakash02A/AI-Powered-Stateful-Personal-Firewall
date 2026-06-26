@@ -44,6 +44,6 @@ Please be respectful and constructive in all interactions. Discriminatory or har
 6. The CI pipeline will automatically run CodeQL, Bandit, Pip-Audit, and Pytest. Your PR must pass all checks before review.
 
 ## Architecture
-Before making major changes, please review the `doc/ARCHITECTURE.md` file to understand the multi-threaded queue-based design.
+Before making major changes, please review the `ARCHITECTURE.md` file to understand the multi-threaded queue-based design.
 
 Thank you for contributing!
