@@ -1,0 +1,23 @@
+{
+    "features": [
+        "duration",
+        "packets_in",
+        "packets_out",
+        "bytes_in",
+        "bytes_out",
+        "avg_packet_size",
+        "packet_rate",
+        "byte_rate"
+    ],
+    "types": [
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float",
+        "float"
+    ],
+    "version": "1.0"
+}

@@ -1,0 +1,17 @@
+{
+    "model_version": "v1.0",
+    "training_date": "2026-06-26T20:09:55.871902Z",
+    "dataset_name": "PCAP Generated Multi-Dataset",
+    "dataset_hash": {
+        "dataset_pcap_0.csv": "f7e21df9b893585366810f2c7fcd19083f3c345af5f1d6994640d7f00ac2dd0e",
+        "dataset_pcap_1.csv": "3fc0eac71ae19ec85fb8ed0331ba271de9c9367b99b0e550a49e284f86e5d5c1",
+        "dataset_pcap_2.csv": "3c0976e81e3022440a2a9dc7f052a8da6d9414e4c5369260d75d58aa2cc2a903"
+    },
+    "feature_count": 8,
+    "training_samples": 251548,
+    "sklearn_version": "1.9.0",
+    "contamination": 0.05,
+    "random_state": 42,
+    "model_hash": "7c914e1a33dfd87b250acfdb4f41c931765ce6bd112344cc08078a06b3d025fa",
+    "scaler_hash": "12a7a502105585ebf8a15fa59de8698cca95b16eb998af2a3049bb7eab914885"
+}
