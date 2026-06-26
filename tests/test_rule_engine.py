@@ -51,20 +51,20 @@ def test_rule_matching(rule_engine):
 
 
 def test_ip_matching(rule_engine):
-    assert rule_engine._ip_matches("192.168.1.50", "192.168.1.0/24") == True
-    assert rule_engine._ip_matches("10.0.0.1", "192.168.1.0/24") == False
-    assert rule_engine._ip_matches("192.168.1.50", "any") == True
-    assert rule_engine._ip_matches("10.0.0.1", "10.0.0.1") == True
+    assert rule_engine._ip_matches("192.168.1.50", "192.168.1.0/24") is True
+    assert rule_engine._ip_matches("10.0.0.1", "192.168.1.0/24") is False
+    assert rule_engine._ip_matches("192.168.1.50", "any") is True
+    assert rule_engine._ip_matches("10.0.0.1", "10.0.0.1") is True
     # Test invalid CIDR silently fails and returns false
-    assert rule_engine._ip_matches("192.168.1.50", "invalid_ip") == False
+    assert rule_engine._ip_matches("192.168.1.50", "invalid_ip") is False
 
 
 def test_port_matching(rule_engine):
-    assert rule_engine._port_matches(80, "80") == True
-    assert rule_engine._port_matches(80, "any") == True
-    assert rule_engine._port_matches(443, "100-500") == True
-    assert rule_engine._port_matches(80, "100-500") == False
-    assert rule_engine._port_matches(80, "invalid") == False
+    assert rule_engine._port_matches(80, "80") is True
+    assert rule_engine._port_matches(80, "any") is True
+    assert rule_engine._port_matches(443, "100-500") is True
+    assert rule_engine._port_matches(80, "100-500") is False
+    assert rule_engine._port_matches(80, "invalid") is False
 
 
 def test_direction_matching():
