@@ -1,4 +1,3 @@
-import pytest
 from scapy.all import IP, TCP, UDP, ICMP
 from firewall.packet_capture import PacketCapture
 

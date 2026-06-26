@@ -1,4 +1,3 @@
-import pytest
 from datetime import datetime, timedelta
 from firewall.models import Packet
 from analytics.flow_engine import FlowEngine

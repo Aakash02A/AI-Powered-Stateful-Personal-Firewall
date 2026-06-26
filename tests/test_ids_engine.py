@@ -1,4 +1,3 @@
-import pytest
 from datetime import datetime
 from firewall.models import Packet
 from firewall.connection_tracker import ConnectionTracker

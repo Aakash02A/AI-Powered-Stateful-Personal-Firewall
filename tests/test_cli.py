@@ -1,4 +1,3 @@
-import pytest
 from click.testing import CliRunner
 from firewall.cli import cli
 from firewall.firewall import PersonalFirewall
