@@ -36,8 +36,8 @@ For an in-depth view of the asynchronous queuing and Thread Health Monitoring, s
 1. **Prerequisites**: Python 3.9+ and Git. (On Windows, **Npcap** must be installed for raw packet capture).
 2. **Clone the Repo**:
    ```bash
-   git clone https://github.com/your-username/ai-firewall.git
-   cd ai-firewall
+   git clone https://github.com/Aakash02A/AI-Powered-Stateful-Personal-Firewall.git
+   cd AI-Powered-Stateful-Personal-Firewall
    ```
 3. **Setup Environment**:
    ```bash
