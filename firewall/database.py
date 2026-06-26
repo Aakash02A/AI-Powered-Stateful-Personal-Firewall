@@ -33,6 +33,7 @@ class ConnectionRecord(Base):
     packets_out = Column(Integer)
     bytes_in = Column(Integer)
     bytes_out = Column(Integer)
+    duration = Column(Float)
 
 class FirewallEventRecord(Base):
     __tablename__ = 'firewall_events'
@@ -166,7 +167,8 @@ class FirewallDatabase:
                     dst_port=item.dst_port, protocol=item.protocol, state=item.state,
                     creation_time=item.creation_time, end_time=item.flow_end,
                     packets_in=item.packets_in, packets_out=item.packets_out,
-                    bytes_in=item.bytes_in, bytes_out=item.bytes_out
+                    bytes_in=item.bytes_in, bytes_out=item.bytes_out,
+                    duration=item.duration
                 ))
             elif isinstance(item, FirewallEvent):
                 records.append(FirewallEventRecord(
