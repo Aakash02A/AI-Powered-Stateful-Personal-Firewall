@@ -6,7 +6,7 @@
 
 A Next-Generation Personal Firewall (NGFW) built in Python that combines stateful packet inspection, rule-based filtering, signature-based IDS, highly-concurrent database logging, and a robust REST API for dashboards.
 
-![Firewall Architecture Placeholder](https://via.placeholder.com/800x400?text=Architecture+Diagram+Placeholder)
+For a detailed view of the architecture, please see [Architecture Documentation](doc/ARCHITECTURE.md).
 
 ## 🚀 Features
 
