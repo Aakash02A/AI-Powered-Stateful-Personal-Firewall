@@ -9,8 +9,8 @@ from sklearn.metrics import classification_report, confusion_matrix
 import sklearn
 import joblib
 import argparse
-from pathlib import Path
 from glob import glob
+
 
 def generate_file_hash(filepath: str) -> str:
     hasher = hashlib.sha256()

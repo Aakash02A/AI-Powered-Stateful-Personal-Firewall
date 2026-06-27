@@ -17,6 +17,7 @@ class IDSEngine:
         self.ml_detector = MLAnomalyDetector()
         
         self.config_path = config_path
+        self._init_state()
         self._load_config()
 
         self.whitelist = {"127.0.0.1"}
@@ -50,8 +51,10 @@ class IDSEngine:
         self.window_port_scan = 10
         self.window_syn_flood = 5
         self.window_icmp_flood = 5
+        self.window_icmp_flood = 5
         self.window_brute_force = 30
 
+    def _init_state(self):
         # Tracking state
         self.syn_packets = defaultdict(list)
         self.icmp_packets = defaultdict(list)

@@ -56,7 +56,7 @@ export function AlertFeed({ alerts, onViewHistory }: AlertFeedProps) {
           </div>
         ) : (
           alerts.map((alert, index) => {
-            const config = SEVERITY_CONFIG[alert.severity] || SEVERITY_CONFIG.LOW;
+            const config = SEVERITY_CONFIG[alert.severity as keyof typeof SEVERITY_CONFIG] || SEVERITY_CONFIG.LOW;
             const Icon = config.icon;
             
             return (

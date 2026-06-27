@@ -1,12 +1,9 @@
 import sys
 import os
 import threading
-import time
-import math
 import shutil
-from pathlib import Path
-import json
 from datetime import datetime
+
 
 from firewall.models import Connection
 from ml.ml_detector import MLAnomalyDetector

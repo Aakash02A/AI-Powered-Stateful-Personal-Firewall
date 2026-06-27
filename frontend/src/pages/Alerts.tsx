@@ -48,7 +48,7 @@ export function Alerts() {
           MEDIUM: 'bg-primary/20 text-primary border-primary/30',
           LOW: 'bg-success/20 text-success border-success/30',
         };
-        const colorClass = colors[row.severity] || colors.LOW;
+        const colorClass = colors[row.severity as keyof typeof colors] || colors.LOW;
         return (
           <span className={`px-2 py-1 rounded text-xs font-bold border ${colorClass}`}>
             {row.severity}

@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from firewall.connection_tracker import ConnectionTracker
+from analytics.flow_engine import FlowEngine
 from firewall.ids_engine import IDSEngine
 from firewall.models import Packet
 
 
 def test_brute_force_detection():
-    tracker = ConnectionTracker()
+    tracker = FlowEngine()
     ids = IDSEngine(tracker)
 
     alerts = []
@@ -30,7 +30,7 @@ def test_brute_force_detection():
 
 
 def test_suspicious_port_detection():
-    tracker = ConnectionTracker()
+    tracker = FlowEngine()
     ids = IDSEngine(tracker)
 
     p = Packet(
