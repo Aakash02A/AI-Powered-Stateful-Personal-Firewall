@@ -12,6 +12,7 @@ export interface FirewallRule {
   direction: string;
   action: string;
   description: string;
+  expires_at?: string;
 }
 
 export const fetchRules = async (): Promise<FirewallRule[]> => {

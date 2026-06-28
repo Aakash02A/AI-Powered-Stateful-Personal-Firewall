@@ -1,7 +1,7 @@
 # Architecture Document for Tier 1 Personal Firewall
 
 ## System Overview
-The AI-Powered Stateful Personal Firewall is a Python-based security tool designed to monitor, filter, and inspect network traffic in real-time. Tier 1 implements the foundational components required for a stateful inspection engine, including a rule-based engine, an Intrusion Detection System (IDS), connection tracking, and comprehensive logging.
+The AI-Powered Stateful Personal Firewall is a Python-based security tool designed to monitor, filter, and inspect network traffic in real-time. It implements a stateful inspection engine, an Intrusion Detection System (IDS), Machine Learning Anomaly Detection, Threat Intelligence, a highly-concurrent database logging pipeline, and a modern React-based administrative dashboard.
 
 ## Core Components
 ### 1. PacketCapture (`packet_capture.py`)
@@ -21,7 +21,27 @@ A signature and heuristic-based anomaly detector monitoring for:
 - **Brute Force Attacks:** Repeated failed connections/SYNs from a single source.
 - **Suspicious Ports:** Connections to known risky alternative ports (e.g., 12345).
 
-### 5. Logging, Metrics, and Database
+### 5. Analytics & Threat Intelligence (`analytics/`)
+A dedicated module for offline processing:
+- **FlowEngine**: Aggregates packets into bidirectional flows, maintaining metadata (duration, bytes in/out, packets in/out).
+- **ThreatScoringEngine**: Consolidates heuristic scores from the IDS, anomaly scores from the ML detector, and reputation scores from Threat Intelligence (AlienVault OTX) into a single, combined risk score.
+- **Auto-Mitigation**: If the combined risk score exceeds a configurable threshold, the engine automatically injects a temporary `DROP` rule into the `RuleEngine` to halt attacks instantly.
+
+### 6. Machine Learning Detector (`ml/`)
+Implements an **Isolation Forest** model to detect Zero-Day anomalies based on traffic patterns rather than signatures.
+- Evaluates flows asynchronously based on `bytes_per_second`, `duration`, and `packet size variance`.
+- Provides an anomaly score (`-1` to `1`) that feeds into the `ThreatScoringEngine`.
+
+### 7. REST API & WebSockets (`api/`)
+A high-performance **FastAPI** application that serves analytics data, manages firewall rules dynamically, and broadcasts live alerts and traffic metrics over WebSockets to the frontend.
+
+### 8. React Dashboard (`frontend/`)
+A modern, dark-themed Single Page Application built with **Vite, React, and Tailwind CSS**.
+- Real-time charts via **Recharts**.
+- Dynamic DataTables for Connections and Rules.
+- WebSocket-driven Alert feeds.
+
+### 9. Logging, Metrics, and Database
 All events, alerts, and captured packets are asynchronously written to a SQLite database by the `DBWriter` background thread. The database schema is strictly version-controlled using **Alembic**.
 A structured JSON file log natively rotates daily.
 **Prometheus** metrics are exposed via `/metrics`, tracking queue depth, threading health, and connections.
@@ -36,8 +56,11 @@ sequenceDiagram
     participant TR as ConnectionTracker
     participant RE as RuleEngine
     participant IDS as IDSEngine
-    participant Q as QueueManager
-    participant DB as DBWriter
+    participant Flow as FlowEngine
+    participant ML as ML Detector
+    participant Score as ThreatScoring
+    participant API as FastAPI
+    participant UI as React Dashboard
 
     Net->>PC: Raw Packet
     PC->>Core: Normalized Packet Object
@@ -45,14 +68,22 @@ sequenceDiagram
     Core->>RE: Evaluate Rules
     RE-->>Core: Action (Allow/Block/Drop)
     Core->>IDS: Analyze Anomalies
-    IDS-->>Core: Alerts List
+    IDS-->>Core: Heuristic Alerts
+    Core->>Flow: Update Traffic Flows
+    
+    rect rgb(30, 30, 50)
+        note right of Flow: Asynchronous Pipeline
+        Flow->>ML: Evaluate Flow Anomalies
+        Flow->>Score: Combine Scores (IDS + ML + TI)
+        Score-->>RE: Auto-Mitigation (Inject DROP Rule)
+    end
     
     alt If Action == Block
         Core->>Net: Send TCP RST / ICMP Unreachable
     end
     
-    Core->>Q: Push FirewallEvent & Alerts
-    Q->>DB: Asynchronous DB Bulk Insert
+    Core-->>API: Broadcast via WebSockets
+    API-->>UI: Real-Time Alert / Event
 ```
 
 ## Data Flow Pipeline

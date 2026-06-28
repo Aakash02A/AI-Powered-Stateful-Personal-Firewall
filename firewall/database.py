@@ -283,3 +283,6 @@ class FirewallDatabase:
         record.last_updated = datetime.now()
         session.commit()
         session.close()
+
+    def close(self):
+        self.engine.dispose()

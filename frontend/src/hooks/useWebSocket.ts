@@ -18,7 +18,10 @@ export function useWebSocket() {
   const connect = useCallback(() => {
     if (ws.current?.readyState === WebSocket.OPEN) return;
 
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api/v1/ws/stream';
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const defaultWsUrl = `${protocol}//${host}/api/v1/ws/stream`;
+    const wsUrl = import.meta.env.VITE_WS_URL || defaultWsUrl;
     const apiKey = import.meta.env.VITE_API_KEY || 'default_dev_key';
     const urlWithAuth = `${wsUrl}?api_key=${apiKey}`;
     

@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY firewall/ firewall/
 COPY api/ api/
 COPY analytics/ analytics/
+COPY ml/ ml/
 
 # Expose API port
 EXPOSE 8000

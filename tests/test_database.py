@@ -10,7 +10,8 @@ from firewall.models import Alert, Packet
 def db():
     # Use in-memory SQLite for testing
     database = FirewallDatabase("sqlite:///:memory:")
-    return database
+    yield database
+    database.close()
 
 
 def test_log_packet(db):

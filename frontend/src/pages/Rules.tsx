@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Shield, Plus, Trash2, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { fetchRules, deleteRule, createRule, FirewallRule } from '../api/rules';
+import { fetchRules, deleteRule, createRule, type FirewallRule } from '../api/rules';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 
@@ -46,7 +46,7 @@ export const Rules: React.FC = () => {
       direction: 'both',
       action: 'allow',
       description: '',
-      expires_at: null
+      expires_at: undefined
     }
   });
 

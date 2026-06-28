@@ -1,17 +1,23 @@
+import pytest
 from datetime import datetime
 
 from firewall.firewall import PersonalFirewall
 from firewall.models import FirewallRule, Packet
 
 
-def test_firewall_block_action(tmp_path):
+@pytest.fixture
+def fw(tmp_path):
     config_file = tmp_path / "rules.json"
     config_file.write_text('{"rules": []}')
     db_file = tmp_path / "test.db"
 
-    fw = PersonalFirewall(config_path=str(config_file), db_path=f"sqlite:///{db_file}")
+    fw_instance = PersonalFirewall(config_path=str(config_file), db_path=f"sqlite:///{db_file}")
+    yield fw_instance
+    if fw_instance.db_writer and fw_instance.db_writer.db:
+        fw_instance.db_writer.db.close()
 
-    # Add a block rule
+
+def test_firewall_block_action(fw):
     fw.rule_engine.add_rule(
         FirewallRule(
             rule_id="test_block",
@@ -71,12 +77,7 @@ def test_firewall_block_action(tmp_path):
     fw._process_packet(p_udp)
 
 
-def test_firewall_drop_action(tmp_path):
-    config_file = tmp_path / "rules.json"
-    config_file.write_text('{"rules": []}')
-    db_file = tmp_path / "test.db"
-
-    fw = PersonalFirewall(config_path=str(config_file), db_path=f"sqlite:///{db_file}")
+def test_firewall_drop_action(fw):
     fw.rule_engine.add_rule(
         FirewallRule(
             rule_id="test_drop",
