@@ -11,9 +11,9 @@ const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m
 const Connections = lazy(() => import('./pages/Connections').then(m => ({ default: m.Connections })));
 const Alerts = lazy(() => import('./pages/Alerts').then(m => ({ default: m.Alerts })));
 const Analytics = lazy(() => import('./pages/Analytics').then(m => ({ default: m.Analytics })));
+const Rules = lazy(() => import('./pages/Rules').then(m => ({ default: m.Rules })));
 
 // Mock empty pages for now
-const Rules = () => <div className="text-2xl font-bold p-6">Rules (WIP)</div>;
 const Settings = () => <div className="text-2xl font-bold p-6">Settings (WIP)</div>;
 
 const queryClient = new QueryClient({

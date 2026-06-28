@@ -18,8 +18,10 @@ def get_local_ips():
 class RuleEngine:
     def __init__(self):
         self.rules: List[FirewallRule] = []
+        self.config_path: Optional[str] = None
 
     def load_rules_from_json(self, path: str):
+        self.config_path = path
         with open(path, "r") as f:
             data = json.load(f)
             for rule_data in data.get("rules", []):
@@ -27,6 +29,13 @@ class RuleEngine:
                 self.rules.append(rule)
         # Sort by priority (lower is higher priority)
         self.rules.sort(key=lambda x: x.priority)
+
+    def save_rules(self):
+        if not self.config_path:
+            return
+        data = {"rules": [r.__dict__ for r in self.rules]}
+        with open(self.config_path, "w") as f:
+            json.dump(data, f, indent=4)
 
     def _ip_matches(self, ip_str: str, rule_ip: str) -> bool:
         if rule_ip.lower() == "any":
@@ -93,9 +102,11 @@ class RuleEngine:
     def add_rule(self, rule: FirewallRule):
         self.rules.append(rule)
         self.rules.sort(key=lambda x: x.priority)
+        self.save_rules()
 
     def delete_rule(self, rule_id: str):
         self.rules = [r for r in self.rules if r.rule_id != rule_id]
+        self.save_rules()
 
     def update_rule(self, rule_id: str, **kwargs):
         for rule in self.rules:
@@ -104,3 +115,4 @@ class RuleEngine:
                     if hasattr(rule, k):
                         setattr(rule, k, v)
         self.rules.sort(key=lambda x: x.priority)
+        self.save_rules()
