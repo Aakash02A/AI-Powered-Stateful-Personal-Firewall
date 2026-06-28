@@ -11,7 +11,9 @@ def fw(tmp_path):
     config_file.write_text('{"rules": []}')
     db_file = tmp_path / "test.db"
 
-    fw_instance = PersonalFirewall(config_path=str(config_file), db_path=f"sqlite:///{db_file}")
+    fw_instance = PersonalFirewall(
+        config_path=str(config_file), db_path=f"sqlite:///{db_file}"
+    )
     yield fw_instance
     if fw_instance.db_writer and fw_instance.db_writer.db:
         fw_instance.db_writer.db.close()

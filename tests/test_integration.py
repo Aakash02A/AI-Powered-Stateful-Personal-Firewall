@@ -67,6 +67,6 @@ def test_firewall_integration_packet_processing(tmp_path):
     # Ensure logs were written to the injected paths
     assert os.path.exists(str(packet_log))
     assert os.path.exists(str(event_log))
-    
+
     if fw.db_writer and fw.db_writer.db:
         fw.db_writer.db.close()
