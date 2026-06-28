@@ -53,6 +53,7 @@ class FirewallRule:
     direction: str  # inbound, outbound, both
     action: str  # allow, block, drop, log
     description: str
+    expires_at: Optional[str] = None
 
 
 @dataclass

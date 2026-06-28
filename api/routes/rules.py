@@ -19,6 +19,7 @@ class RuleCreateUpdate(BaseModel):
     direction: str = "both"
     action: str = "allow"
     description: str = ""
+    expires_at: Optional[str] = None
 
 def get_rule_engine():
     if hasattr(fw_cli, "fw_instance") and fw_cli.fw_instance is not None:
@@ -48,7 +49,8 @@ def create_rule(rule_data: RuleCreateUpdate, engine = Depends(get_rule_engine)):
         dst_port=rule_data.dst_port,
         direction=rule_data.direction,
         action=rule_data.action,
-        description=rule_data.description
+        description=rule_data.description,
+        expires_at=rule_data.expires_at
     )
     engine.add_rule(rule)
     return {"status": "success", "rule": rule.__dict__}
@@ -80,7 +82,8 @@ def update_rule(rule_id: str, rule_data: RuleCreateUpdate, engine = Depends(get_
         dst_port=rule_data.dst_port,
         direction=rule_data.direction,
         action=rule_data.action,
-        description=rule_data.description
+        description=rule_data.description,
+        expires_at=rule_data.expires_at
     )
     
     # Return updated rule

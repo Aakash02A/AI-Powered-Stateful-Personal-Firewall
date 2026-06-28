@@ -116,3 +116,23 @@ class RuleEngine:
                         setattr(rule, k, v)
         self.rules.sort(key=lambda x: x.priority)
         self.save_rules()
+
+    def cleanup_expired_rules(self):
+        from datetime import datetime
+        now = datetime.now()
+        original_count = len(self.rules)
+        
+        valid_rules = []
+        for rule in self.rules:
+            if rule.expires_at:
+                try:
+                    expires = datetime.fromisoformat(rule.expires_at)
+                    if now > expires:
+                        continue # Skip expired rule
+                except Exception:
+                    pass # Keep if invalid format
+            valid_rules.append(rule)
+            
+        if len(valid_rules) < original_count:
+            self.rules = valid_rules
+            self.save_rules()

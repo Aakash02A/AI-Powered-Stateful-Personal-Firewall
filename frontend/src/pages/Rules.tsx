@@ -45,7 +45,8 @@ export const Rules: React.FC = () => {
       dst_port: 'any',
       direction: 'both',
       action: 'allow',
-      description: ''
+      description: '',
+      expires_at: null
     }
   });
 
@@ -130,8 +131,15 @@ export const Rules: React.FC = () => {
                   <td className="p-4 text-slate-300 capitalize">{rule.direction}</td>
                   <td className="p-4">
                     {rule.enabled ? (
-                      <div className="flex items-center gap-1.5 text-emerald-400">
-                        <CheckCircle className="w-4 h-4" /> <span className="text-xs">Enabled</span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5 text-emerald-400">
+                          <CheckCircle className="w-4 h-4" /> <span className="text-xs">Enabled</span>
+                        </div>
+                        {rule.expires_at && (
+                          <div className="text-[10px] text-slate-400 font-mono">
+                            Expires: {new Date(rule.expires_at).toLocaleString()}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="flex items-center gap-1.5 text-slate-500">

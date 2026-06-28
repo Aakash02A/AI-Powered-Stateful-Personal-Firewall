@@ -11,9 +11,21 @@ from ml.ml_detector import MLAnomalyDetector
 from firewall.threat_intel import ThreatIntelClient
 
 
+from analytics.threat_scoring import ThreatScoringEngine
+from firewall.rule_engine import RuleEngine
+
 class IDSEngine:
-    def __init__(self, flow_engine: FlowEngine, config_path: str = "firewall/config/ids_config.json"):
+    def __init__(
+        self, 
+        flow_engine: FlowEngine, 
+        rule_engine: Optional[RuleEngine] = None,
+        scoring_engine: Optional[ThreatScoringEngine] = None,
+        config_path: str = "firewall/config/ids_config.json"
+    ):
         self.tracker = flow_engine
+        self.rule_engine = rule_engine
+        self.scoring_engine = scoring_engine
+        
         self.event_bus = EventBus()
         self.ml_detector = MLAnomalyDetector()
         self.ti_client = ThreatIntelClient()
@@ -40,6 +52,12 @@ class IDSEngine:
                 self.window_syn_flood = windows.get("syn_flood", 5)
                 self.window_icmp_flood = windows.get("icmp_flood", 5)
                 self.window_brute_force = windows.get("brute_force", 30)
+
+                # Active Mitigation Configuration
+                auto_block = config.get("auto_block", {})
+                self.auto_block_enabled = auto_block.get("enabled", False)
+                self.auto_block_threshold = auto_block.get("threshold", 85.0)
+                self.auto_block_duration_minutes = auto_block.get("duration_minutes", 60)
             else:
                 self._set_default_config()
         except Exception:
@@ -53,8 +71,10 @@ class IDSEngine:
         self.window_port_scan = 10
         self.window_syn_flood = 5
         self.window_icmp_flood = 5
-        self.window_icmp_flood = 5
         self.window_brute_force = 30
+        self.auto_block_enabled = False
+        self.auto_block_threshold = 85.0
+        self.auto_block_duration_minutes = 60
 
     def _init_state(self):
         # Tracking state
@@ -232,6 +252,61 @@ class IDSEngine:
             )
         return None
 
+    def _trigger_mitigation(self, ip: str, score: float, reason: str):
+        if not self.auto_block_enabled or not self.rule_engine:
+            return
+
+        # Check for existing auto-block rule for this IP to prevent duplicates
+        rule_id_prefix = f"auto_block_{ip.replace('.', '_')}"
+        existing_rule = next((r for r in self.rule_engine.rules if r.rule_id.startswith(rule_id_prefix) and r.action == "drop"), None)
+        if existing_rule:
+            return
+
+        expires_at = (datetime.now() + timedelta(minutes=self.auto_block_duration_minutes)).isoformat()
+        
+        try:
+            from firewall.models import FirewallRule
+            import time
+            
+            rule_id = f"{rule_id_prefix}_{int(time.time())}"
+            rule = FirewallRule(
+                rule_id=rule_id,
+                priority=1, # highest priority
+                enabled=True,
+                protocol="any",
+                src_ip=ip,
+                src_port="any",
+                dst_ip="any",
+                dst_port="any",
+                direction="inbound", # Block inbound from this attacker
+                action="drop",
+                description=f"Auto-mitigation triggered. Score: {score:.1f}. Reason: {reason}",
+                expires_at=expires_at
+            )
+            self.rule_engine.add_rule(rule)
+            
+            import logging
+            logger = logging.getLogger("system")
+            logger.critical(f"AUTO-MITIGATION: Dropping IP {ip} (Score: {score:.1f}) until {expires_at}")
+            
+            # Publish event
+            from firewall.models import FirewallEvent
+            event = FirewallEvent(
+                timestamp=datetime.now(),
+                rule_id=rule_id,
+                action="auto_mitigation",
+                src_ip=ip,
+                src_port=0,
+                dst_ip="any",
+                dst_port=0,
+                protocol="any",
+                reason=f"Score {score:.1f} exceeded threshold {self.auto_block_threshold}"
+            )
+            self.event_bus.publish("events", event)
+        except Exception as e:
+            import logging
+            logging.getLogger("system").error(f"Failed to trigger auto-mitigation for {ip}: {e}")
+
     def analyze_packet(self, packet: Packet) -> List[Alert]:
         alerts = []
         if packet.src_ip in self.whitelist:
@@ -272,6 +347,19 @@ class IDSEngine:
                     alert.details = {}
                 alert.details["ti_data"] = ti_data
                 alert.details["ml_score"] = alert.details.get("ml_score", 0.0) # preserve if already set
+                
+                # If scoring engine is available, calculate combined score and check auto-mitigation
+                if self.scoring_engine:
+                    self.scoring_engine.add_offense(alert.src_ip, alert.alert_type)
+                    combined_score = self.scoring_engine.get_combined_score(
+                        alert.src_ip, 
+                        ml_score=alert.details["ml_score"], 
+                        ti_score=ti_score
+                    )
+                    alert.details["combined_score"] = combined_score
+                    
+                    if combined_score >= self.auto_block_threshold:
+                        self._trigger_mitigation(alert.src_ip, combined_score, alert.description)
                 
             self.event_bus.publish("alerts", alert)
 

@@ -7,6 +7,7 @@ from typing import Any, Dict
 from scapy.all import ICMP, IP, TCP, send
 
 from analytics.flow_engine import FlowEngine
+from analytics.threat_scoring import ThreatScoringEngine
 from firewall.db_writer import DBWriter
 from firewall.event_bus import EventBus
 from firewall.ids_engine import IDSEngine
@@ -28,7 +29,8 @@ class PersonalFirewall:
         self.packet_capture = PacketCapture()
         self.rule_engine = RuleEngine()
         self.flow_engine = FlowEngine()
-        self.ids_engine = IDSEngine(self.flow_engine)
+        self.scoring_engine = ThreatScoringEngine()
+        self.ids_engine = IDSEngine(self.flow_engine, self.rule_engine, self.scoring_engine)
         self.queue_manager = QueueManager()
         self.event_bus = EventBus()
         self.db_writer = DBWriter(db_path=db_path)
@@ -107,6 +109,8 @@ class PersonalFirewall:
         while self.running:
             try:
                 self.flow_engine.clean_expired()
+                self.rule_engine.cleanup_expired_rules()
+                self.scoring_engine.decay_scores()
             except Exception as e:
                 logging.getLogger("system").error(f"Cleanup loop error: {e}")
             time.sleep(10)
