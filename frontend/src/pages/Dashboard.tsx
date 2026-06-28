@@ -10,6 +10,9 @@ import { ConnectionStatus } from '../components/ConnectionStatus';
 import { NotificationHistory } from '../components/NotificationHistory';
 import { MLStatusCard } from '../components/MLStatusCard';
 import { MLAnomalyChart } from '../components/MLAnomalyChart';
+import { MLMetricsWidget } from '../components/MLMetricsWidget';
+import { MLAlertsFeed } from '../components/MLAlertsFeed';
+
 
 export function Dashboard() {
   const [liveAlerts, setLiveAlerts] = useState<AlertData[]>([]);
@@ -86,14 +89,6 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Charts */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-1">
-              <MLStatusCard />
-            </div>
-            <div className="xl:col-span-2 h-[350px]">
-              <MLAnomalyChart />
-            </div>
-          </div>
           <ProtocolChart data={protocols} />
         </div>
         
@@ -103,6 +98,30 @@ export function Dashboard() {
             alerts={liveAlerts} 
             onViewHistory={() => setIsHistoryOpen(true)} 
           />
+        </div>
+      </div>
+
+      <div className="pt-6 pb-2">
+        <div className="border-t border-slate-800"></div>
+      </div>
+
+      <div>
+        <h2 className="text-xl font-bold text-slate-100 tracking-tight mb-6">Machine Learning Analysis</h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1 flex flex-col gap-6 h-full">
+            <MLStatusCard />
+            <div className="flex-1 min-h-[300px]">
+              <MLAlertsFeed />
+            </div>
+          </div>
+          
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <MLMetricsWidget />
+            <div className="flex-1">
+              <MLAnomalyChart />
+            </div>
+          </div>
         </div>
       </div>
       
