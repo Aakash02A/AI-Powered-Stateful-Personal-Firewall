@@ -37,19 +37,19 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-md' 
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className={`w-full ${maxWidth} transform overflow-hidden rounded-xl bg-slate-900 border border-slate-700 p-6 text-left align-middle shadow-xl transition-all`}>
+              <Dialog.Panel className={`w-full ${maxWidth} transform overflow-hidden rounded-xl bg-background border border-border p-6 text-left align-middle shadow-xl transition-all`}>
                 <div className="flex justify-between items-center mb-5">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-slate-100">
+                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-foreground">
                     {title}
                   </Dialog.Title>
                   <button
                     onClick={onClose}
-                    className="text-slate-400 hover:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1"
+                    className="text-muted hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                <div className="mt-2 text-slate-300 text-sm">
+                <div className="mt-2 text-foreground text-sm">
                   {children}
                 </div>
               </Dialog.Panel>

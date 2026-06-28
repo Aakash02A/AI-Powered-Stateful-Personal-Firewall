@@ -24,11 +24,11 @@ export function DashboardLayout() {
       {/* Sidebar */}
       <aside 
         className={`${sidebarOpen ? 'w-64' : 'w-20'} 
-        transition-all duration-300 ease-in-out border-r border-slate-700/50 bg-slate-900/50 backdrop-blur-xl flex flex-col`}
+        transition-all duration-300 ease-in-out border-r border-border bg-background backdrop-blur-xl flex flex-col`}
       >
-        <div className="h-16 flex items-center justify-center border-b border-slate-700/50">
+        <div className="h-16 flex items-center justify-center border-b border-border">
           <ShieldCheck className="w-8 h-8 text-primary" />
-          {sidebarOpen && <span className="ml-3 font-bold text-lg tracking-wider text-slate-100">AI-NGFW</span>}
+          {sidebarOpen && <span className="ml-3 font-bold text-lg tracking-wider text-foreground">AI-NGFW</span>}
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4">
@@ -41,7 +41,7 @@ export function DashboardLayout() {
                     `flex items-center px-3 py-2 rounded-lg transition-colors ${
                       isActive 
                         ? 'bg-primary/20 text-primary border border-primary/30' 
-                        : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                        : 'text-muted hover:bg-panel hover:text-foreground'
                     }`
                   }
                   title={!sidebarOpen ? item.name : undefined}
@@ -57,29 +57,29 @@ export function DashboardLayout() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <header className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md flex items-center justify-between px-4 lg:px-8 z-10 transition-colors duration-300">
+        <header className="h-16 border-b border-border bg-background backdrop-blur-md flex items-center justify-between px-4 lg:px-8 z-10 transition-colors duration-300">
           <div className="flex items-center">
-            <button onClick={toggleSidebar} className="lg:hidden p-2 mr-3 text-slate-400 hover:text-slate-200">
+            <button onClick={toggleSidebar} className="lg:hidden p-2 mr-3 text-muted hover:text-foreground">
               <Menu className="w-6 h-6" />
             </button>
-            <h2 className="text-sm font-medium text-slate-400 uppercase tracking-widest hidden sm:block">Status: <span className="text-primary font-bold">Active</span></h2>
+            <h2 className="text-sm font-medium text-muted uppercase tracking-widest hidden sm:block">Status: <span className="text-primary font-bold">Active</span></h2>
           </div>
           
           <div className="flex items-center space-x-4">
             <button 
               onClick={toggleTheme}
-              className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-full transition-colors"
+              className="p-2 text-muted hover:text-foreground hover:bg-panel rounded-full transition-colors"
               aria-label="Toggle Theme"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
             <div className="flex items-center space-x-2">
-                <span className="text-sm text-slate-400">System Status:</span>
+                <span className="text-sm text-muted">System Status:</span>
                 <span className="relative flex h-3 w-3">
                   {isConnected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>}
                   <span className={`relative inline-flex rounded-full h-3 w-3 ${isConnected ? 'bg-success' : 'bg-danger'}`}></span>
                 </span>
-                <span className="text-sm font-medium text-slate-300">
+                <span className="text-sm font-medium text-foreground">
                   {isConnected ? 'Online' : 'Disconnected'}
                 </span>
              </div>

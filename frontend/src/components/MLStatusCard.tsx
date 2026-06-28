@@ -26,7 +26,7 @@ export function MLStatusCard() {
     <div className="bg-gradient-to-br from-purple-900/40 to-purple-800/40 border border-purple-700/50 rounded-xl p-6 shadow-sm">
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-3">
-          <div className={`p-2.5 rounded-xl ${isEnabled ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-800/50 text-slate-500'}`}>
+          <div className={`p-2.5 rounded-xl ${isEnabled ? 'bg-emerald-500/10 text-emerald-400' : 'bg-panel text-muted'}`}>
             <Brain className="w-6 h-6" />
           </div>
           <div>

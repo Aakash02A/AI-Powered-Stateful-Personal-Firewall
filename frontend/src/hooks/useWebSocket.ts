@@ -13,7 +13,7 @@ export function useWebSocket() {
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heartbeatInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const reconnectAttempts = useRef(0);
 
   const connect = useCallback(() => {
     if (ws.current?.readyState === WebSocket.OPEN) return;
@@ -29,10 +29,10 @@ export function useWebSocket() {
 
     ws.current.onopen = () => {
       setIsConnected(true);
-      setReconnectAttempts(0);
-      if (reconnectAttempts > 0) {
+      if (reconnectAttempts.current > 0) {
         toast.success('WebSocket Reconnected');
       }
+      reconnectAttempts.current = 0;
 
       // Start Heartbeat
       heartbeatInterval.current = setInterval(() => {
@@ -64,9 +64,9 @@ export function useWebSocket() {
       if (heartbeatInterval.current) clearInterval(heartbeatInterval.current);
       
       // Exponential backoff reconnect
-      const timeout = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+      const timeout = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
       reconnectTimeout.current = setTimeout(() => {
-        setReconnectAttempts(prev => prev + 1);
+        reconnectAttempts.current += 1;
         connect();
       }, timeout);
     };
@@ -75,7 +75,7 @@ export function useWebSocket() {
       console.error('WebSocket Error', error);
       ws.current?.close();
     };
-  }, [reconnectAttempts]);
+  }, []);
 
   useEffect(() => {
     connect();

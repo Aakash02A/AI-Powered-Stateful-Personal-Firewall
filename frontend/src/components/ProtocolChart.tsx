@@ -1,17 +1,24 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
+import { EmptyState, LoadingSkeleton } from './UIStates';
+
 interface ProtocolChartProps {
   data: Record<string, number>;
+  isLoading?: boolean;
 }
 
-const COLORS = ['#38BDF8', '#818CF8', '#34D399', '#FBBF24', '#F87171', '#A78BFA'];
+const COLORS = ['var(--color-primary)', 'var(--color-secondary)', 'var(--color-success)', 'var(--color-warning)', 'var(--color-danger)', '#A78BFA'];
 
-export function ProtocolChart({ data }: ProtocolChartProps) {
+export function ProtocolChart({ data, isLoading }: ProtocolChartProps) {
+  if (isLoading) {
+    return <LoadingSkeleton type="chart" />;
+  }
+
   if (!data || Object.keys(data).length === 0) {
     return (
-      <div className="glass-panel p-6 h-80 flex flex-col justify-center items-center">
-        <h3 className="text-slate-400 font-medium text-sm tracking-wider uppercase mb-4 absolute top-6 left-6">Protocol Distribution</h3>
-        <p className="text-slate-500 text-sm">No protocol data available</p>
+      <div className="glass-panel p-6 h-80 flex flex-col relative">
+        <h3 className="text-muted font-medium text-sm tracking-wider uppercase mb-4">Protocol Distribution</h3>
+        <EmptyState title="No Protocol Data" description="No traffic has been recorded yet." />
       </div>
     );
   }
@@ -23,7 +30,7 @@ export function ProtocolChart({ data }: ProtocolChartProps) {
 
   return (
     <div className="glass-panel p-6 h-80 flex flex-col relative">
-      <h3 className="text-slate-400 font-medium text-sm tracking-wider uppercase mb-4">Protocol Distribution</h3>
+      <h3 className="text-muted font-medium text-sm tracking-wider uppercase mb-4">Protocol Distribution</h3>
       <div className="flex-1 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

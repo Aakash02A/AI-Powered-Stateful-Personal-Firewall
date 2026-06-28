@@ -66,13 +66,13 @@ export function Alerts() {
       sortable: true,
       render: (row) => (
         <div className="flex items-center space-x-2">
-          <span className="uppercase text-xs tracking-wider text-slate-400 bg-slate-800 px-2 py-1 rounded">
+          <span className="uppercase text-xs tracking-wider text-muted bg-panel px-2 py-1 rounded">
             {row.action_taken}
           </span>
           {row.alert_type === 'ml_anomaly' && row.action_taken !== 'false_positive' && (
             <button
               onClick={() => markFalsePositive(row.id!)}
-              className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded transition-colors"
+              className="px-2 py-1 bg-panel-hover hover:bg-panel-hover text-foreground text-xs rounded transition-colors"
             >
               Mark False Positive
             </button>
@@ -86,15 +86,15 @@ export function Alerts() {
     <div className="h-full flex flex-col space-y-4">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Security Alerts</h1>
-          <p className="text-sm text-slate-400 mt-1">Historical log of all detected network threats and anomalies.</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Security Alerts</h1>
+          <p className="text-sm text-muted mt-1">Historical log of all detected network threats and anomalies.</p>
         </div>
         
         <div className="flex space-x-2">
           <select 
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-700 text-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            className="bg-background border border-border text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">All Severities</option>
             <option value="CRITICAL">Critical</option>

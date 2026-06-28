@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { EmptyState, LoadingSkeleton } from './UIStates';
 
 export interface Column<T> {
   key: string;
@@ -81,14 +82,14 @@ export function DataTable<T extends Record<string, any>>({
 
   return (
     <div className="glass-panel flex flex-col h-full overflow-hidden">
-      <div className="p-4 border-b border-slate-700/50 flex justify-between items-center bg-slate-800/30">
+      <div className="p-4 border-b border-border flex justify-between items-center bg-panel/30">
         <div className="relative w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-slate-500" />
+            <Search className="h-4 w-4 text-muted" />
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-md leading-5 bg-slate-900/50 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-colors"
+            className="block w-full pl-10 pr-3 py-2 border border-border rounded-md leading-5 bg-background text-foreground placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-colors"
             placeholder={searchPlaceholder}
             value={localSearch}
             onChange={handleSearchChange}
@@ -98,14 +99,14 @@ export function DataTable<T extends Record<string, any>>({
 
       <div ref={parentRef} className="flex-1 overflow-auto relative">
         <table className="min-w-full divide-y divide-slate-700/50 text-sm table-fixed">
-          <thead className="bg-slate-900/80 sticky top-0 z-20 backdrop-blur-sm block">
+          <thead className="bg-background/80 sticky top-0 z-20 backdrop-blur-sm block">
             <tr className="flex w-full">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   scope="col"
                   style={{ width: col.width || `${100 / columns.length}%` }}
-                  className={`px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider ${col.sortable ? 'cursor-pointer hover:bg-slate-800/50' : ''}`}
+                  className={`px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider ${col.sortable ? 'cursor-pointer hover:bg-panel' : ''}`}
                   onClick={() => col.sortable && handleSort(col.key)}
                 >
                   <div className="flex items-center space-x-1">
@@ -124,17 +125,17 @@ export function DataTable<T extends Record<string, any>>({
           >
             {isLoading ? (
               <tr className="flex w-full relative">
-                <td className="px-6 py-8 text-center text-slate-500 w-full">
-                  <div className="animate-pulse flex flex-col items-center justify-center space-y-2">
-                    <div className="h-4 bg-slate-700 rounded w-1/4"></div>
-                    <div className="h-4 bg-slate-700 rounded w-1/2"></div>
-                  </div>
+                <td className="px-6 py-8 text-center text-muted w-full">
+                  <LoadingSkeleton lines={4} />
                 </td>
               </tr>
             ) : processedData.length === 0 ? (
               <tr className="flex w-full relative">
-                <td className="px-6 py-8 text-center text-slate-500 w-full">
-                  No data found
+                <td className="w-full">
+                  <EmptyState 
+                    title="No data found" 
+                    description={localSearch ? "Try adjusting your search query." : "There is no data to display here yet."} 
+                  />
                 </td>
               </tr>
             ) : (
@@ -143,7 +144,7 @@ export function DataTable<T extends Record<string, any>>({
                 return (
                   <tr 
                     key={virtualRow.index} 
-                    className="hover:bg-slate-800/30 transition-colors flex w-full absolute"
+                    className="hover:bg-panel/30 transition-colors flex w-full absolute"
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
@@ -153,7 +154,7 @@ export function DataTable<T extends Record<string, any>>({
                       <td 
                         key={col.key} 
                         style={{ width: col.width || `${100 / columns.length}%` }}
-                        className="px-6 py-4 whitespace-nowrap text-slate-300 overflow-hidden text-ellipsis"
+                        className="px-6 py-4 whitespace-nowrap text-foreground overflow-hidden text-ellipsis"
                       >
                         {col.render ? col.render(row) : row[col.key]}
                       </td>
@@ -167,7 +168,7 @@ export function DataTable<T extends Record<string, any>>({
       </div>
       
       {/* Simple pagination footer placeholder */}
-      <div className="p-3 border-t border-slate-700/50 bg-slate-800/30 text-xs text-slate-500 flex justify-between items-center">
+      <div className="p-3 border-t border-border bg-panel/30 text-xs text-muted flex justify-between items-center">
         <span>Showing {processedData.length} records</span>
       </div>
     </div>

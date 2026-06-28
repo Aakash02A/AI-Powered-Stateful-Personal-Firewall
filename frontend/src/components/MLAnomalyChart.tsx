@@ -41,18 +41,18 @@ export function MLAnomalyChart() {
 
   if (isLoading) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm min-h-[400px] flex items-center justify-center">
-        <div className="text-slate-500 animate-pulse">Loading anomaly trend data...</div>
+      <div className="bg-background border border-border rounded-xl p-6 shadow-sm min-h-[400px] flex items-center justify-center">
+        <div className="text-muted animate-pulse">Loading anomaly trend data...</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm min-h-[400px] flex flex-col">
+    <div className="bg-background border border-border rounded-xl p-6 shadow-sm min-h-[400px] flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <BrainCircuit className="w-5 h-5 text-purple-400" />
-          <h3 className="text-lg font-medium text-slate-100">Anomaly Score Trend (24h)</h3>
+          <h3 className="text-lg font-medium text-foreground">Anomaly Score Trend (24h)</h3>
         </div>
         <div className="flex gap-4 text-xs">
           <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-purple-500"></div> Avg Score</div>
@@ -61,7 +61,7 @@ export function MLAnomalyChart() {
       </div>
       
       {scores.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-slate-500">
+        <div className="flex-1 flex flex-col items-center justify-center text-muted">
           <BrainCircuit className="w-12 h-12 mb-3 opacity-20" />
           <p>No anomalies detected recently</p>
         </div>

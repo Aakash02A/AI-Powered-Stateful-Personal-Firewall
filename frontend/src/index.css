@@ -3,37 +3,55 @@
 
 @layer base {
   :root {
-    --bg-background: #0F172A;
+    --bg-background: #F8FAFC;
+    --bg-panel: rgba(255, 255, 255, 0.9);
+    --bg-panel-hover: rgba(241, 245, 249, 0.9);
+    --border-color: #E2E8F0;
+    --text-foreground: #0F172A;
+    --text-muted: #64748B;
+    --color-primary: #0284C7;
+    --color-secondary: #4F46E5;
+    --color-success: #059669;
+    --color-warning: #D97706;
+    --color-danger: #DC2626;
   }
   
-  .light {
-    --color-slate-900: #f8fafc;
-    --color-slate-800: #f1f5f9;
-    --color-slate-700: #e2e8f0;
-    --color-slate-600: #cbd5e1;
-    --color-slate-500: #94a3b8;
-    --color-slate-400: #64748b;
-    --color-slate-300: #475569;
-    --color-slate-200: #334155;
-    --color-slate-100: #0f172a;
-    --color-slate-50: #020617;
-    --bg-background: #F8FAFC;
+  .dark {
+    --bg-background: #0B1120;
+    --bg-panel: rgba(30, 41, 59, 0.7);
+    --bg-panel-hover: rgba(51, 65, 85, 0.7);
+    --border-color: rgba(51, 65, 85, 0.5);
+    --text-foreground: #F1F5F9;
+    --text-muted: #94A3B8;
+    --color-primary: #38BDF8;
+    --color-secondary: #818CF8;
+    --color-success: #34D399;
+    --color-warning: #FBBF24;
+    --color-danger: #F87171;
   }
 
   body {
-    @apply antialiased min-h-screen;
-    background-color: var(--bg-background, #0F172A);
-    color: var(--color-slate-200, #e2e8f0);
+    @apply antialiased min-h-screen transition-colors duration-300;
+    background-color: var(--bg-background);
+    color: var(--text-foreground);
     background-image: 
-      radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-      radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
-      radial-gradient(at 100% 0%, hsla(339,49%,30%,0.1) 0, transparent 50%);
+      radial-gradient(at 0% 0%, hsla(253,16%,7%,0.5) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(225,39%,30%,0.1) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(339,49%,30%,0.05) 0, transparent 50%);
     background-attachment: fixed;
+  }
+
+  /* Adjust background gradient for light mode */
+  :root:not(.dark) body {
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(210,100%,95%,1) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(225,100%,95%,1) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(339,100%,95%,1) 0, transparent 50%);
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply bg-panel backdrop-blur-md border border-slate-700/50 rounded-xl shadow-xl;
+    @apply bg-panel backdrop-blur-md border border-border rounded-xl shadow-xl transition-colors duration-300;
   }
 }

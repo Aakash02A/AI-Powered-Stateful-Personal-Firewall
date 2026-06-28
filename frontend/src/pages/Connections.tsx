@@ -45,13 +45,13 @@ export function Connections() {
       key: 'src_ip',
       header: 'Source',
       sortable: true,
-      render: (row) => <span className="font-mono text-slate-300">{row.src_ip}:{row.src_port}</span>
+      render: (row) => <span className="font-mono text-foreground">{row.src_ip}:{row.src_port}</span>
     },
     {
       key: 'dst_ip',
       header: 'Destination',
       sortable: true,
-      render: (row) => <span className="font-mono text-slate-300">{row.dst_ip}:{row.dst_port}</span>
+      render: (row) => <span className="font-mono text-foreground">{row.dst_ip}:{row.dst_port}</span>
     },
     { 
       key: 'protocol', 
@@ -66,7 +66,7 @@ export function Connections() {
       render: (row) => (
         <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold tracking-wider ${
           row.state === 'ESTABLISHED' ? 'bg-success/20 text-success' : 
-          row.state === 'CLOSED' ? 'bg-slate-800 text-slate-400' : 
+          row.state === 'CLOSED' ? 'bg-panel text-muted' : 
           'bg-warning/20 text-warning'
         }`}>
           {row.state}
@@ -85,8 +85,8 @@ export function Connections() {
       sortable: true,
       render: (row) => (
         <div className="flex flex-col text-xs space-y-1">
-          <span className="text-slate-300">↑ {formatBytes(row.bytes_out)}</span>
-          <span className="text-slate-500">↓ {formatBytes(row.bytes_in)}</span>
+          <span className="text-foreground">↑ {formatBytes(row.bytes_out)}</span>
+          <span className="text-muted">↓ {formatBytes(row.bytes_in)}</span>
         </div>
       )
     },
@@ -96,8 +96,8 @@ export function Connections() {
     <div className="h-full flex flex-col space-y-4">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Active Connections</h1>
-          <p className="text-sm text-slate-400 mt-1">Live view of network flows tracked by the stateful firewall.</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Active Connections</h1>
+          <p className="text-sm text-muted mt-1">Live view of network flows tracked by the stateful firewall.</p>
         </div>
       </div>
 

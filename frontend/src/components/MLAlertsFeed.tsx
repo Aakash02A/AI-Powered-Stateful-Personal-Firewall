@@ -49,13 +49,13 @@ export function MLAlertsFeed() {
   const alerts: Alert[] = alertsResponse?.data || [];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-sm flex flex-col h-full max-h-[400px]">
-      <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 rounded-t-xl">
-        <h3 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+    <div className="bg-background border border-border rounded-xl shadow-sm flex flex-col h-full max-h-[400px]">
+      <div className="p-4 border-b border-border flex justify-between items-center bg-background rounded-t-xl">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <ShieldAlert className="w-4 h-4 text-purple-400" />
           Recent ML Anomalies
         </h3>
-        <span className="text-xs font-medium text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
+        <span className="text-xs font-medium text-muted bg-panel px-2 py-0.5 rounded-full">
           Live
         </span>
       </div>
@@ -64,17 +64,17 @@ export function MLAlertsFeed() {
         {isLoading ? (
           <div className="flex flex-col gap-2 p-2">
             {[1, 2, 3].map(i => (
-              <div key={i} className="animate-pulse flex gap-3 p-3 bg-slate-800/50 rounded-lg">
-                <div className="w-8 h-8 rounded-full bg-slate-700"></div>
+              <div key={i} className="animate-pulse flex gap-3 p-3 bg-panel rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-panel-hover"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-3 bg-slate-700 rounded w-1/4"></div>
-                  <div className="h-3 bg-slate-700 rounded w-3/4"></div>
+                  <div className="h-3 bg-panel-hover rounded w-1/4"></div>
+                  <div className="h-3 bg-panel-hover rounded w-3/4"></div>
                 </div>
               </div>
             ))}
           </div>
         ) : alerts.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-500 p-6 text-center space-y-3">
+          <div className="h-full flex flex-col items-center justify-center text-muted p-6 text-center space-y-3">
             <ShieldAlert className="w-10 h-10 opacity-20" />
             <p className="text-sm">No recent ML anomalies detected.</p>
           </div>
@@ -83,7 +83,7 @@ export function MLAlertsFeed() {
             {alerts.map((alert) => (
               <div 
                 key={alert.id}
-                className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-700"
+                className="flex items-start gap-3 p-3 rounded-lg hover:bg-panel transition-colors border border-transparent hover:border-border"
               >
                 <div className="shrink-0 mt-0.5">
                   {getSeverityIcon(alert.severity)}
@@ -93,14 +93,14 @@ export function MLAlertsFeed() {
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${getSeverityColor(alert.severity)}`}>
                       {alert.severity}
                     </span>
-                    <span className="text-[11px] text-slate-500 whitespace-nowrap">
+                    <span className="text-[11px] text-muted whitespace-nowrap">
                       {formatDistanceToNow(new Date(alert.timestamp), { addSuffix: true })}
                     </span>
                   </div>
-                  <div className="text-sm font-medium text-slate-300 truncate font-mono">
-                    {alert.src_ip} <span className="text-slate-500">→</span> {alert.dst_ip}
+                  <div className="text-sm font-medium text-foreground truncate font-mono">
+                    {alert.src_ip} <span className="text-muted">→</span> {alert.dst_ip}
                   </div>
-                  <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                  <p className="text-xs text-muted mt-1 line-clamp-2">
                     {alert.description}
                   </p>
                 </div>

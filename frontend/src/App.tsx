@@ -12,6 +12,7 @@ const Connections = lazy(() => import('./pages/Connections').then(m => ({ defaul
 const Alerts = lazy(() => import('./pages/Alerts').then(m => ({ default: m.Alerts })));
 const Analytics = lazy(() => import('./pages/Analytics').then(m => ({ default: m.Analytics })));
 const Rules = lazy(() => import('./pages/Rules').then(m => ({ default: m.Rules })));
+const Docs = lazy(() => import('./pages/Docs').then(m => ({ default: m.Docs })));
 
 // Mock empty pages for now
 const Settings = () => <div className="text-2xl font-bold p-6">Settings (WIP)</div>;
@@ -32,9 +33,9 @@ function App() {
 
   useEffect(() => {
     if (isDark) {
-      document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
     }
   }, [isDark]);
 
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/alerts" element={<Alerts />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/rules" element={<Rules />} />
+                <Route path="/docs" element={<Docs />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
             </Routes>
@@ -58,8 +60,8 @@ function App() {
         <Toaster 
           position="top-right" 
           toastOptions={{ 
-            className: 'bg-slate-800 text-slate-100 border border-slate-700',
-            style: { background: '#1E293B', color: '#F1F5F9', borderColor: '#334155' }
+            className: 'bg-panel text-foreground border border-border',
+            style: { background: 'var(--bg-panel)', color: 'var(--text-foreground)', borderColor: 'var(--border-color)' }
           }} 
         />
       </QueryClientProvider>

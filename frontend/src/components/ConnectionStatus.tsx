@@ -8,17 +8,17 @@ export function ConnectionStatus() {
   
   const { data: healthData, isError: isRestError } = useQuery({
     queryKey: ['health'],
-    queryFn: () => apiClient.get('/health').then(res => res.data),
+    queryFn: () => apiClient.get('/health/ready').then(res => res.data),
     refetchInterval: 10000,
     retry: 3,
   });
 
-  const isRestConnected = !isRestError && healthData?.status === 'healthy';
+  const isRestConnected = !isRestError && healthData?.status === 'ready';
 
   return (
     <div className="flex items-center space-x-6 text-sm">
       <div className="flex items-center space-x-2">
-        <span className="text-slate-400">REST API:</span>
+        <span className="text-muted">REST API:</span>
         {isRestConnected ? (
           <span className="flex items-center text-success bg-success/10 px-2 py-0.5 rounded-full font-medium">
             <Wifi className="w-3.5 h-3.5 mr-1" /> Online
@@ -31,7 +31,7 @@ export function ConnectionStatus() {
       </div>
 
       <div className="flex items-center space-x-2">
-        <span className="text-slate-400">Live Feed:</span>
+        <span className="text-muted">Live Feed:</span>
         {isWsConnected ? (
           <span className="flex items-center text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium" title={lastMessageTime ? `Last message at ${new Date(lastMessageTime).toLocaleTimeString()}` : 'Connected'}>
             <Activity className="w-3.5 h-3.5 mr-1 animate-pulse" /> Connected

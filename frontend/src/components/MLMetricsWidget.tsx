@@ -11,8 +11,8 @@ export function MLMetricsWidget() {
 
   if (isLoading) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm flex items-center justify-center">
-        <span className="text-slate-500 animate-pulse">Loading Metrics...</span>
+      <div className="bg-background border border-border rounded-xl p-6 shadow-sm flex items-center justify-center">
+        <span className="text-muted animate-pulse">Loading Metrics...</span>
       </div>
     );
   }

@@ -22,17 +22,17 @@ export function Analytics() {
     <div className="space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Analytics & Intelligence</h1>
-          <p className="text-sm text-slate-400 mt-1">Deep dive into network traffic origins and threat sources.</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Analytics & Intelligence</h1>
+          <p className="text-sm text-muted mt-1">Deep dive into network traffic origins and threat sources.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Talkers */}
         <div className="glass-panel p-6 h-[450px] flex flex-col">
-          <h3 className="text-slate-400 font-medium text-sm tracking-wider uppercase mb-6">Top Talkers (By Volume)</h3>
+          <h3 className="text-muted font-medium text-sm tracking-wider uppercase mb-6">Top Talkers (By Volume)</h3>
           {topTalkers.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center text-slate-500">No talker data available</div>
+            <div className="flex-1 flex items-center justify-center text-muted">No talker data available</div>
           ) : (
             <div className="flex-1 w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -54,9 +54,9 @@ export function Analytics() {
 
         {/* Top Attackers */}
         <div className="glass-panel p-6 h-[450px] flex flex-col">
-          <h3 className="text-slate-400 font-medium text-sm tracking-wider uppercase mb-6 text-danger">Top Attackers (By Incidents)</h3>
+          <h3 className="text-muted font-medium text-sm tracking-wider uppercase mb-6 text-danger">Top Attackers (By Incidents)</h3>
           {topAttackers.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center text-slate-500">No attacker data available</div>
+            <div className="flex-1 flex items-center justify-center text-muted">No attacker data available</div>
           ) : (
             <div className="flex-1 w-full">
               <ResponsiveContainer width="100%" height="100%">

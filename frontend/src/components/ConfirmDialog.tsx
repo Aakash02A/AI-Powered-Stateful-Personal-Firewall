@@ -30,13 +30,13 @@ export function ConfirmDialog({
             <AlertTriangle className="w-6 h-6 text-danger" />
           </div>
         )}
-        <p className="text-slate-300 mt-1">{message}</p>
+        <p className="text-foreground mt-1">{message}</p>
       </div>
 
       <div className="flex justify-end space-x-3 mt-4">
         <button
           onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-md transition-colors"
+          className="px-4 py-2 text-sm font-medium text-foreground bg-panel hover:bg-panel-hover border border-border rounded-md transition-colors"
         >
           {cancelText}
         </button>
