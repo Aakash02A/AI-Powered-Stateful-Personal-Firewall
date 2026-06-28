@@ -1,14 +1,10 @@
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import os
-import time
+from typing import Optional
 from datetime import datetime, timedelta, timezone
 
 from api.security import get_api_key
 from firewall.database import FirewallDatabase
-import json
 
 router = APIRouter(prefix="/api/v1/ml", tags=["ML"], dependencies=[Depends(get_api_key)])
 db = FirewallDatabase()

@@ -3,7 +3,7 @@ import time
 import requests
 import ipaddress
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)

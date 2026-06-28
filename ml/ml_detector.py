@@ -1,7 +1,7 @@
 import joblib
 import logging
 import json
-from typing import Optional
+
 from pathlib import Path
 import warnings
 

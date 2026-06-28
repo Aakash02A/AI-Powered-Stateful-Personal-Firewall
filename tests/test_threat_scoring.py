@@ -39,20 +39,23 @@ def test_decay():
     engine.decay_scores()
     assert engine.scores["10.0.0.2"] < 10
 
+
 def test_combined_score():
     engine = ThreatScoringEngine()
-    
+
     # 50% heuristic (from 10), 30% ML (from 0.8), 20% TI (from 50)
-    engine.add_offense("8.8.8.8", "block") # heuristic = 10
-    
-    ml_score = 0.8 # scaled to 80 -> 30% of 80 = 24
+    engine.add_offense("8.8.8.8", "block")  # heuristic = 10
+
+    ml_score = 0.8  # scaled to 80 -> 30% of 80 = 24
     ti_score = 50  # 20% of 50 = 10
     # heuristic -> 50% of 10 = 5
     # Total = 5 + 24 + 10 = 39
-    
-    combined = engine.get_combined_score("8.8.8.8", ml_score=ml_score, ti_score=ti_score)
+
+    combined = engine.get_combined_score(
+        "8.8.8.8", ml_score=ml_score, ti_score=ti_score
+    )
     assert combined == 39.0
-    
+
     # Test bounds
     combined_high = engine.get_combined_score("8.8.8.8", ml_score=1.5, ti_score=150)
     # ML capped at 100 -> 30, TI capped at 100 -> 20, Heuristic -> 5. Total = 55.0

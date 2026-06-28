@@ -1,8 +1,7 @@
 import csv
 import logging
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List
 
 from scapy.all import IP, TCP, UDP, ICMP, sniff
 from scapy.packet import Packet as ScapyPacket
