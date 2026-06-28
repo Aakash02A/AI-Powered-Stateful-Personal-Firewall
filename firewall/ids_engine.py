@@ -8,6 +8,7 @@ from analytics.flow_engine import FlowEngine
 from firewall.event_bus import EventBus
 from firewall.models import Alert, Packet
 from ml.ml_detector import MLAnomalyDetector
+from firewall.threat_intel import ThreatIntelClient
 
 
 class IDSEngine:
@@ -15,6 +16,7 @@ class IDSEngine:
         self.tracker = flow_engine
         self.event_bus = EventBus()
         self.ml_detector = MLAnomalyDetector()
+        self.ti_client = ThreatIntelClient()
         
         self.config_path = config_path
         self._init_state()
@@ -226,6 +228,7 @@ class IDSEngine:
                 dst_ip=conn.dst_ip,
                 description=f"ML Anomaly (score: {score:.3f}) detected for flow {conn.src_ip}:{conn.src_port} -> {conn.dst_ip}:{conn.dst_port}",
                 action_taken="log",
+                details={"ml_score": float(score)}
             )
         return None
 
@@ -259,6 +262,17 @@ class IDSEngine:
             alerts.append(alert6)
 
         for alert in alerts:
+            if alert.src_ip and alert.src_ip != "127.0.0.1":
+                ti_data = self.ti_client.check_ip(alert.src_ip)
+                ti_score = ti_data.get('abuseConfidenceScore', 0)
+                if ti_score > 0:
+                    alert.description += f" [TI Reputation: {ti_score}%]"
+                    
+                if not alert.details:
+                    alert.details = {}
+                alert.details["ti_data"] = ti_data
+                alert.details["ml_score"] = alert.details.get("ml_score", 0.0) # preserve if already set
+                
             self.event_bus.publish("alerts", alert)
 
         return alerts

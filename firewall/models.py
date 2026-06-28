@@ -77,3 +77,4 @@ class Alert:
     dst_ip: str = ""
     description: str = ""
     action_taken: str = "none"
+    details: Optional[dict] = None

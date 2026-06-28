@@ -271,3 +271,15 @@ class FirewallDatabase:
             success = False
         session.close()
         return success
+
+    def update_threat_intelligence(self, ip: str, score: float, classification: str):
+        session = self.Session()
+        record = session.query(ThreatIntelligenceRecord).filter(ThreatIntelligenceRecord.ip_address == ip).first()
+        if not record:
+            record = ThreatIntelligenceRecord(ip_address=ip)
+            session.add(record)
+        record.threat_score = score
+        record.classification = classification
+        record.last_updated = datetime.now()
+        session.commit()
+        session.close()
