@@ -3,13 +3,14 @@ import logging
 from datetime import datetime
 from typing import List
 
-from scapy.all import IP, TCP, UDP, ICMP, sniff
+from scapy.all import ICMP, IP, TCP, UDP, sniff
 from scapy.packet import Packet as ScapyPacket
 
 from analytics.flow_engine import FlowEngine
-from firewall.models import Packet, Connection
+from firewall.models import Connection, Packet
 
 logger = logging.getLogger(__name__)
+
 
 class OfflineFlowEngine(FlowEngine):
     def __init__(self, timeout: int = 300, syn_timeout: int = 30):
@@ -20,7 +21,9 @@ class OfflineFlowEngine(FlowEngine):
         expired_keys = []
         for key, conn in self.active_connections.items():
             if conn.state == "SYN_SENT":
-                if current_time - conn.last_activity > timedelta(seconds=self.syn_timeout):
+                if current_time - conn.last_activity > timedelta(
+                    seconds=self.syn_timeout
+                ):
                     expired_keys.append(key)
             elif conn.state == "CLOSED":
                 if current_time - conn.last_activity > timedelta(seconds=10):
@@ -108,6 +111,7 @@ class OfflineFlowEngine(FlowEngine):
 
         return conn
 
+
 def parse_scapy_packet(raw_packet: ScapyPacket) -> Packet | None:
     if IP not in raw_packet:
         return None
@@ -141,90 +145,112 @@ def parse_scapy_packet(raw_packet: ScapyPacket) -> Packet | None:
         size=len(raw_packet),
     )
 
+
 def process_pcap(pcap_path: str, output_csv: str):
     logger.info(f"Processing PCAP: {pcap_path}")
     engine = OfflineFlowEngine()
-    
+
     packet_count = 0
     last_cleanup = None
-    
+
     def handle_packet(raw_pkt):
         nonlocal packet_count, last_cleanup
         pkt = parse_scapy_packet(raw_pkt)
         if not pkt:
             return
-            
+
         packet_count += 1
         if packet_count % 10000 == 0:
             logger.info(f"Processed {packet_count} packets...")
-            
+
         engine.process_offline_packet(pkt)
-        
+
         if last_cleanup is None or (pkt.timestamp - last_cleanup).total_seconds() > 10:
             engine.clean_expired(pkt.timestamp)
             last_cleanup = pkt.timestamp
 
     sniff(offline=pcap_path, prn=handle_packet, store=False)
-    
+
     # Flush remaining
     logger.info("Flushing remaining active connections...")
     fake_now = datetime.max
     engine.clean_expired(fake_now)
-    
-    # Export to CSV
-    export_dataset(engine.completed_flows, engine.active_connections.values(), output_csv)
 
-def export_dataset(completed_flows: List[Connection], active_flows: List[Connection], output_path: str):
+    # Export to CSV
+    export_dataset(
+        engine.completed_flows, engine.active_connections.values(), output_csv
+    )
+
+
+def export_dataset(
+    completed_flows: List[Connection], active_flows: List[Connection], output_path: str
+):
     all_flows = completed_flows + list(active_flows)
     logger.info(f"Exporting {len(all_flows)} flows to {output_path}")
-    
+
     fieldnames = [
-        "src_ip", "dst_ip", "src_port", "dst_port", "protocol",
-        "duration", "packets_in", "packets_out", "bytes_in", "bytes_out",
-        "avg_packet_size", "packet_rate", "byte_rate", "label"
+        "src_ip",
+        "dst_ip",
+        "src_port",
+        "dst_port",
+        "protocol",
+        "duration",
+        "packets_in",
+        "packets_out",
+        "bytes_in",
+        "bytes_out",
+        "avg_packet_size",
+        "packet_rate",
+        "byte_rate",
+        "label",
     ]
-    
+
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        
+
         for flow in all_flows:
             # Simple labeling heuristic: Mark anomalous if it matches known malicious patterns
             # Or if it's a massive SYN flood
             is_anomaly = False
-            if flow.protocol == "TCP" and flow.state == "SYN_SENT" and flow.packets_out > 20 and flow.packets_in == 0:
+            if (
+                flow.protocol == "TCP"
+                and flow.state == "SYN_SENT"
+                and flow.packets_out > 20
+                and flow.packets_in == 0
+            ):
                 is_anomaly = True
             # For real datasets, we might use IP blacklists or Snort signatures to label here.
-            
-            writer.writerow({
-                "src_ip": flow.src_ip,
-                "dst_ip": flow.dst_ip,
-                "src_port": flow.src_port,
-                "dst_port": flow.dst_port,
-                "protocol": flow.protocol,
-                "duration": round(flow.duration, 4),
-                "packets_in": flow.packets_in,
-                "packets_out": flow.packets_out,
-                "bytes_in": flow.bytes_in,
-                "bytes_out": flow.bytes_out,
-                "avg_packet_size": round(flow.avg_packet_size, 2),
-                "packet_rate": round(flow.packet_rate, 2),
-                "byte_rate": round(flow.byte_rate, 2),
-                "label": 1 if is_anomaly else 0,
-            })
+
+            writer.writerow(
+                {
+                    "src_ip": flow.src_ip,
+                    "dst_ip": flow.dst_ip,
+                    "src_port": flow.src_port,
+                    "dst_port": flow.dst_port,
+                    "protocol": flow.protocol,
+                    "duration": round(flow.duration, 4),
+                    "packets_in": flow.packets_in,
+                    "packets_out": flow.packets_out,
+                    "bytes_in": flow.bytes_in,
+                    "bytes_out": flow.bytes_out,
+                    "avg_packet_size": round(flow.avg_packet_size, 2),
+                    "packet_rate": round(flow.packet_rate, 2),
+                    "byte_rate": round(flow.byte_rate, 2),
+                    "label": 1 if is_anomaly else 0,
+                }
+            )
     logger.info("Export complete.")
+
 
 if __name__ == "__main__":
     import os
     from datetime import timedelta
+
     logging.basicConfig(level=logging.INFO)
-    pcap_files = [
-        "data/Sample.pcapng",
-        "data/Sample2.pcapng", 
-        "data/Sample3.pcapng"
-    ]
-    
+    pcap_files = ["data/Sample.pcapng", "data/Sample2.pcapng", "data/Sample3.pcapng"]
+
     for idx, pcap in enumerate(pcap_files):
         if os.path.exists(pcap):
             process_pcap(pcap, f"ml/data/dataset_pcap_{idx}.csv")

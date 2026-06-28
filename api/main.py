@@ -15,7 +15,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
 from api.config import settings
-from api.routes import analytics, health, logs, ws, ml, rules
+from api.routes import analytics, health, logs, ml, rules, ws
 
 # Setup standard logging
 logger = logging.getLogger("api")

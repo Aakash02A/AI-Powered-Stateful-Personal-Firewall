@@ -1,11 +1,10 @@
 import pytest
+
 from ml.ml_detector import MLAnomalyDetector
-from tests.fixtures.attack_traffic import (
-    generate_normal_traffic,
-    generate_syn_flood,
-    generate_port_scan,
-    generate_icmp_flood,
-)
+from tests.fixtures.attack_traffic import (generate_icmp_flood,
+                                           generate_normal_traffic,
+                                           generate_port_scan,
+                                           generate_syn_flood)
 
 
 @pytest.fixture(scope="module")

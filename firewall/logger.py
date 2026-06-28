@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class JSONFormatter(logging.Formatter):
     def format(self, record):
         log_record = {
-            "time": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+            "time": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "name": record.name,
             "level": record.levelname,
             "message": record.getMessage(),

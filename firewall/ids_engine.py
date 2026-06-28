@@ -1,35 +1,34 @@
 import json
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import List, Optional
 from pathlib import Path
+from typing import List, Optional
 
 from analytics.flow_engine import FlowEngine
+from analytics.threat_scoring import ThreatScoringEngine
 from firewall.event_bus import EventBus
 from firewall.models import Alert, Packet
-from ml.ml_detector import MLAnomalyDetector
-from firewall.threat_intel import ThreatIntelClient
-
-
-from analytics.threat_scoring import ThreatScoringEngine
 from firewall.rule_engine import RuleEngine
+from firewall.threat_intel import ThreatIntelClient
+from ml.ml_detector import MLAnomalyDetector
+
 
 class IDSEngine:
     def __init__(
-        self, 
-        flow_engine: FlowEngine, 
+        self,
+        flow_engine: FlowEngine,
         rule_engine: Optional[RuleEngine] = None,
         scoring_engine: Optional[ThreatScoringEngine] = None,
-        config_path: str = "firewall/config/ids_config.json"
+        config_path: str = "firewall/config/ids_config.json",
     ):
         self.tracker = flow_engine
         self.rule_engine = rule_engine
         self.scoring_engine = scoring_engine
-        
+
         self.event_bus = EventBus()
         self.ml_detector = MLAnomalyDetector()
         self.ti_client = ThreatIntelClient()
-        
+
         self.config_path = config_path
         self._init_state()
         self._load_config()
@@ -46,7 +45,7 @@ class IDSEngine:
                 self.syn_flood_threshold = config.get("syn_flood_threshold", 50)
                 self.icmp_flood_threshold = config.get("icmp_flood_threshold", 100)
                 self.brute_force_threshold = config.get("brute_force_threshold", 5)
-                
+
                 windows = config.get("time_windows", {})
                 self.window_port_scan = windows.get("port_scan", 10)
                 self.window_syn_flood = windows.get("syn_flood", 5)
@@ -57,7 +56,9 @@ class IDSEngine:
                 auto_block = config.get("auto_block", {})
                 self.auto_block_enabled = auto_block.get("enabled", False)
                 self.auto_block_threshold = auto_block.get("threshold", 85.0)
-                self.auto_block_duration_minutes = auto_block.get("duration_minutes", 60)
+                self.auto_block_duration_minutes = auto_block.get(
+                    "duration_minutes", 60
+                )
             else:
                 self._set_default_config()
         except Exception:
@@ -221,7 +222,11 @@ class IDSEngine:
         now = datetime.now()
 
         if (now - self.ml_last_cleanup).total_seconds() > 60:
-            self.ml_last_eval = {k: v for k, v in self.ml_last_eval.items() if k in self.tracker.active_connections}
+            self.ml_last_eval = {
+                k: v
+                for k, v in self.ml_last_eval.items()
+                if k in self.tracker.active_connections
+            }
             self.ml_last_cleanup = now
 
         last_eval = self.ml_last_eval.get(key)
@@ -248,7 +253,7 @@ class IDSEngine:
                 dst_ip=conn.dst_ip,
                 description=f"ML Anomaly (score: {score:.3f}) detected for flow {conn.src_ip}:{conn.src_port} -> {conn.dst_ip}:{conn.dst_port}",
                 action_taken="log",
-                details={"ml_score": float(score)}
+                details={"ml_score": float(score)},
             )
         return None
 
@@ -258,39 +263,53 @@ class IDSEngine:
 
         # Check for existing auto-block rule for this IP to prevent duplicates
         rule_id_prefix = f"auto_block_{ip.replace('.', '_')}"
-        existing_rule = next((r for r in self.rule_engine.rules if r.rule_id.startswith(rule_id_prefix) and r.action == "drop"), None)
+        existing_rule = next(
+            (
+                r
+                for r in self.rule_engine.rules
+                if r.rule_id.startswith(rule_id_prefix) and r.action == "drop"
+            ),
+            None,
+        )
         if existing_rule:
             return
 
-        expires_at = (datetime.now() + timedelta(minutes=self.auto_block_duration_minutes)).isoformat()
-        
+        expires_at = (
+            datetime.now() + timedelta(minutes=self.auto_block_duration_minutes)
+        ).isoformat()
+
         try:
-            from firewall.models import FirewallRule
             import time
-            
+
+            from firewall.models import FirewallRule
+
             rule_id = f"{rule_id_prefix}_{int(time.time())}"
             rule = FirewallRule(
                 rule_id=rule_id,
-                priority=1, # highest priority
+                priority=1,  # highest priority
                 enabled=True,
                 protocol="any",
                 src_ip=ip,
                 src_port="any",
                 dst_ip="any",
                 dst_port="any",
-                direction="inbound", # Block inbound from this attacker
+                direction="inbound",  # Block inbound from this attacker
                 action="drop",
                 description=f"Auto-mitigation triggered. Score: {score:.1f}. Reason: {reason}",
-                expires_at=expires_at
+                expires_at=expires_at,
             )
             self.rule_engine.add_rule(rule)
-            
+
             import logging
+
             logger = logging.getLogger("system")
-            logger.critical(f"AUTO-MITIGATION: Dropping IP {ip} (Score: {score:.1f}) until {expires_at}")
-            
+            logger.critical(
+                f"AUTO-MITIGATION: Dropping IP {ip} (Score: {score:.1f}) until {expires_at}"
+            )
+
             # Publish event
             from firewall.models import FirewallEvent
+
             event = FirewallEvent(
                 timestamp=datetime.now(),
                 rule_id=rule_id,
@@ -300,12 +319,15 @@ class IDSEngine:
                 dst_ip="any",
                 dst_port=0,
                 protocol="any",
-                reason=f"Score {score:.1f} exceeded threshold {self.auto_block_threshold}"
+                reason=f"Score {score:.1f} exceeded threshold {self.auto_block_threshold}",
             )
             self.event_bus.publish("events", event)
         except Exception as e:
             import logging
-            logging.getLogger("system").error(f"Failed to trigger auto-mitigation for {ip}: {e}")
+
+            logging.getLogger("system").error(
+                f"Failed to trigger auto-mitigation for {ip}: {e}"
+            )
 
     def analyze_packet(self, packet: Packet) -> List[Alert]:
         alerts = []
@@ -339,28 +361,32 @@ class IDSEngine:
         for alert in alerts:
             if alert.src_ip and alert.src_ip != "127.0.0.1":
                 ti_data = self.ti_client.check_ip(alert.src_ip)
-                ti_score = ti_data.get('abuseConfidenceScore', 0)
+                ti_score = ti_data.get("abuseConfidenceScore", 0)
                 if ti_score > 0:
                     alert.description += f" [TI Reputation: {ti_score}%]"
-                    
+
                 if not alert.details:
                     alert.details = {}
                 alert.details["ti_data"] = ti_data
-                alert.details["ml_score"] = alert.details.get("ml_score", 0.0) # preserve if already set
-                
+                alert.details["ml_score"] = alert.details.get(
+                    "ml_score", 0.0
+                )  # preserve if already set
+
                 # If scoring engine is available, calculate combined score and check auto-mitigation
                 if self.scoring_engine:
                     self.scoring_engine.add_offense(alert.src_ip, alert.alert_type)
                     combined_score = self.scoring_engine.get_combined_score(
-                        alert.src_ip, 
-                        ml_score=alert.details["ml_score"], 
-                        ti_score=ti_score
+                        alert.src_ip,
+                        ml_score=alert.details["ml_score"],
+                        ti_score=ti_score,
                     )
                     alert.details["combined_score"] = combined_score
-                    
+
                     if combined_score >= self.auto_block_threshold:
-                        self._trigger_mitigation(alert.src_ip, combined_score, alert.description)
-                
+                        self._trigger_mitigation(
+                            alert.src_ip, combined_score, alert.description
+                        )
+
             self.event_bus.publish("alerts", alert)
 
         return alerts

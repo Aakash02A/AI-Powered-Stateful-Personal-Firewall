@@ -1,5 +1,6 @@
-import pytest
 from datetime import datetime
+
+import pytest
 
 from firewall.firewall import PersonalFirewall
 from firewall.models import FirewallRule, Packet

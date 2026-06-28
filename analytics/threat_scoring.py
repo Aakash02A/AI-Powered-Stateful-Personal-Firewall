@@ -43,18 +43,20 @@ class ThreatScoringEngine:
             if self.scores[ip] <= 0:
                 del self.scores[ip]
 
-    def get_combined_score(self, ip: str, ml_score: float = 0.0, ti_score: float = 0.0) -> float:
+    def get_combined_score(
+        self, ip: str, ml_score: float = 0.0, ti_score: float = 0.0
+    ) -> float:
         """
         Combines heuristic, machine learning, and threat intelligence scores into a single unified threat score.
         ml_score: Float between 0.0 and 1.0 (will be scaled to 100)
         ti_score: Integer between 0 and 100 (AbuseIPDB abuseConfidenceScore)
         """
         heuristic_score = self.scores.get(ip, 0.0)
-        
+
         # Ensure bounds
         ml_scaled = min(max(ml_score * 100.0, 0.0), 100.0)
         ti_bounded = min(max(float(ti_score), 0.0), 100.0)
-        
+
         # Weights: 50% Heuristic, 30% ML, 20% TI
         combined = (0.5 * heuristic_score) + (0.3 * ml_scaled) + (0.2 * ti_bounded)
         return min(combined, 100.0)

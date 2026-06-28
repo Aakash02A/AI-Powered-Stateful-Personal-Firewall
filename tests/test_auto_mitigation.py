@@ -1,10 +1,11 @@
-import pytest
 from datetime import datetime, timedelta
 
-from firewall.ids_engine import IDSEngine
-from analytics.threat_scoring import ThreatScoringEngine
-from firewall.rule_engine import RuleEngine
+import pytest
+
 from analytics.flow_engine import FlowEngine
+from analytics.threat_scoring import ThreatScoringEngine
+from firewall.ids_engine import IDSEngine
+from firewall.rule_engine import RuleEngine
 
 
 @pytest.fixture

@@ -40,7 +40,7 @@ def generate_flow(is_anomaly=False):
 
     total_packets = packets_in + packets_out
     total_bytes = bytes_in + bytes_out
-    
+
     # Avoid division by zero
     duration = max(duration, 0.001)
     total_packets = max(total_packets, 1)
@@ -67,7 +67,7 @@ def generate_dataset(num_samples: int, anomaly_ratio: float, output_path: str):
     Generates a dataset and saves it to a CSV file.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
+
     fieldnames = [
         "duration",
         "packets_in",
@@ -79,25 +79,27 @@ def generate_dataset(num_samples: int, anomaly_ratio: float, output_path: str):
         "byte_rate",
         "label",
     ]
-    
+
     num_anomalies = int(num_samples * anomaly_ratio)
     num_normal = num_samples - num_anomalies
 
-    print(f"Generating {num_normal} normal flows and {num_anomalies} anomalous flows...")
-    
+    print(
+        f"Generating {num_normal} normal flows and {num_anomalies} anomalous flows..."
+    )
+
     samples = []
     for _ in range(num_normal):
         samples.append(generate_flow(is_anomaly=False))
     for _ in range(num_anomalies):
         samples.append(generate_flow(is_anomaly=True))
-        
+
     random.shuffle(samples)
-    
+
     with open(output_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(samples)
-        
+
     print(f"Dataset saved to {output_path}")
 
 

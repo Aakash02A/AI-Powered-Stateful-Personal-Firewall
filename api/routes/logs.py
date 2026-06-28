@@ -31,6 +31,7 @@ def get_connections(limit: int = Query(50, ge=1, le=1000)):
     connections = db.query_connections(limit=limit)
     return {"status": "success", "data": connections}
 
+
 @router.post("/alerts/{alert_id}/false-positive")
 def mark_false_positive(alert_id: int):
     success = db.mark_alert_false_positive(alert_id)

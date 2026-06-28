@@ -30,7 +30,9 @@ class PersonalFirewall:
         self.rule_engine = RuleEngine()
         self.flow_engine = FlowEngine()
         self.scoring_engine = ThreatScoringEngine()
-        self.ids_engine = IDSEngine(self.flow_engine, self.rule_engine, self.scoring_engine)
+        self.ids_engine = IDSEngine(
+            self.flow_engine, self.rule_engine, self.scoring_engine
+        )
         self.queue_manager = QueueManager()
         self.event_bus = EventBus()
         self.db_writer = DBWriter(db_path=db_path)
