@@ -128,7 +128,7 @@ class FlowEngine:
     def clean_expired(self):
         now = datetime.now()
         expired_keys = []
-        for key, conn in self.active_connections.items():
+        for key, conn in list(self.active_connections.items()):
             if conn.state == "SYN_SENT":
                 if now - conn.last_activity > timedelta(seconds=self.syn_timeout):
                     expired_keys.append(key)
