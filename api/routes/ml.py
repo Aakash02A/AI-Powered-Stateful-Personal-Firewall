@@ -120,7 +120,7 @@ def get_anomaly_scores(
             try:
                 score_str = desc.split("(score: ")[1].split(")")[0]
                 score = float(score_str)
-            except Exception:
+            except (ValueError, IndexError):
                 pass
 
         if window_ts not in windows:
