@@ -8,11 +8,13 @@ db_fd, db_path = tempfile.mkstemp(suffix=".db")
 os.close(db_fd)
 os.environ["DATABASE_URL"] = f"sqlite:///{db_path}"
 
+
 def cleanup_db():
     try:
         os.remove(db_path)
     except OSError:
         pass
+
 
 atexit.register(cleanup_db)
 
