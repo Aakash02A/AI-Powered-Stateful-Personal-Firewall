@@ -2,14 +2,13 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
 
+from api.config import settings
 from api.models import AlertsResponse, ConnectionsResponse
 from api.security import get_api_key
 from firewall.database import FirewallDatabase
 
 router = APIRouter(prefix="/api/v1", tags=["Logs"], dependencies=[Depends(get_api_key)])
-db = (
-    FirewallDatabase()
-)  # Uses singleton pattern if we set it up, else creates a new connection
+db = FirewallDatabase(db_path=settings.DATABASE_URL)
 
 
 @router.get("/alerts", response_model=AlertsResponse, summary="Get Paginated Alerts")

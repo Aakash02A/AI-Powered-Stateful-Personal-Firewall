@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from analytics.cache import AnalyticsCache
+from api.config import settings
 from firewall.database import FirewallDatabase
 from firewall.queue_manager import QueueManager
 
@@ -12,7 +13,7 @@ router = APIRouter(prefix="/health", tags=["Health"])
 
 cache = AnalyticsCache()
 queue_manager = QueueManager()
-db = FirewallDatabase()
+db = FirewallDatabase(db_path=settings.DATABASE_URL)
 START_TIME = time.time()
 
 

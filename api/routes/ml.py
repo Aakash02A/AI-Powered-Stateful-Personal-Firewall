@@ -4,13 +4,14 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
 
+from api.config import settings
 from api.security import get_api_key
 from firewall.database import FirewallDatabase
 
 router = APIRouter(
     prefix="/api/v1/ml", tags=["ML"], dependencies=[Depends(get_api_key)]
 )
-db = FirewallDatabase()
+db = FirewallDatabase(db_path=settings.DATABASE_URL)
 
 
 @router.get("/status")
