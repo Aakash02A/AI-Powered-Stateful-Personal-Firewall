@@ -130,7 +130,7 @@ class RuleEngine:
                     expires = datetime.fromisoformat(rule.expires_at)
                     if now > expires:
                         continue  # Skip expired rule
-                except Exception:
+                except (ValueError, TypeError):
                     pass  # Keep if invalid format
             valid_rules.append(rule)
 
