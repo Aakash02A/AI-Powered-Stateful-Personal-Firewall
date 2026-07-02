@@ -36,7 +36,7 @@ limiter = Limiter(key_func=get_remote_address, default_limits=[settings.RATE_LIM
 async def lifespan(app: FastAPI):
     # Startup
     logger.info(
-        f"Starting Personal Firewall API v1.0.0 on {settings.HOST}:{settings.PORT}",
+        f"Starting Personal Firewall API v1.1.0 on {settings.HOST}:{settings.PORT}",
         extra={"request_id": "system"},
     )
 
@@ -65,7 +65,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Personal Firewall API",
     description="REST and WebSocket API for the AI-Powered Stateful Personal Firewall",
-    version="1.0.0",
+    version="1.1.0",
     lifespan=lifespan,
 )
 

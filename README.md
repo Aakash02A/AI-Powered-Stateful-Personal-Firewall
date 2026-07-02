@@ -57,10 +57,25 @@ For an in-depth view of the asynchronous queuing and Thread Health Monitoring, s
 
 ## 💻 Usage
 
-### 1. Windows Desktop Edition (Consumer App)
-The new consumer-friendly **Windows Desktop Application (v1.1.0)** is the recommended way to run the firewall on Windows.
-- It includes a native installer, background Windows Service, System Tray icon, and Auto-Updater.
-- **[View Installation Guide](docs/Installation_Guide.md)**
+### 1. Windows Desktop Edition (v1.1.0)
+The new consumer-friendly **Windows Desktop Application (v1.1.0)** is the recommended way to run the firewall on Windows. It includes a native installer, background Windows Service, System Tray icon, and Auto-Updater.
+
+![FUI Dashboard Placeholder](docs/images/dashboard_preview.png)
+*(Screenshot: The new Futuristic UI Dashboard running natively on Windows)*
+
+#### Download & Installation
+1. Go to the [Releases](https://github.com/Aakash02A/AI-Powered-Stateful-Personal-Firewall/releases/latest) page and download `AIFirewall_Setup_v1.1.0.exe`.
+2. Double-click the installer and follow the Setup Wizard.
+3. The firewall service will automatically start in the background.
+
+#### Quick Start
+- Click the **AI Firewall shield icon** in your System Tray (bottom right of your screen).
+- Select **Open Dashboard** to view live traffic and manage alerts.
+- See the **[Beta Testing Guide](BETA_TESTING_GUIDE.md)** for testing instructions.
+
+#### Troubleshooting
+If you encounter issues (e.g. Service not starting, blank dashboard, or SmartScreen warnings), please see our comprehensive **[Troubleshooting Guide](docs/Troubleshooting_Guide.md)**.
+
 
 ### 2. Standalone CLI (Developer Mode)
 Run the daemon manually (Requires Root/Administrator capabilities):

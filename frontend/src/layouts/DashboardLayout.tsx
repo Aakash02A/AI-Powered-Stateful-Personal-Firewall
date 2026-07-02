@@ -1,6 +1,6 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import { useUIStore } from '../store/uiStore';
-import { useThemeStore } from '../store/themeStore';
+
 import { ShieldCheck, Activity, AlertTriangle, Network, Settings, BarChart2, BookOpen, Menu } from 'lucide-react';
 import { useWebSocket } from '../hooks/useWebSocket';
 
