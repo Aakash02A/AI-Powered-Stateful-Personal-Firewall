@@ -8,6 +8,9 @@ from firewall.logger import thread_safe_run
 from firewall.models import Packet
 
 
+import os
+import sys
+
 class PacketCapture:
     def __init__(self, interface: Optional[str] = None):
         self.interface = interface
@@ -16,7 +19,7 @@ class PacketCapture:
 
     def _packet_handler(self, raw_packet, callback: Callable):
         if IP not in raw_packet:
-            return
+            return True
 
         ip_layer = raw_packet[IP]
         protocol = "OTHER"
@@ -47,9 +50,44 @@ class PacketCapture:
             size=len(raw_packet),
             raw=bytes(raw_packet),
         )
-        callback(packet)
+        # Callback returns True to allow, False to block
+        result = callback(packet)
+        return result if result is not None else True
 
     def _start_sniffing(self, callback: Callable):
+        if sys.platform == "win32":
+            try:
+                import pydivert
+                print("[+] Starting Windows Filtering Platform (WFP) capture via pydivert...")
+                with pydivert.WinDivert("ip or ipv6") as w:
+                    while self.running:
+                        try:
+                            # Use timeout to allow checking self.running periodically
+                            packet = w.recv(timeout=1000)
+                            if packet is None:
+                                continue
+                            
+                            # Convert pydivert packet to our format (roughly)
+                            # Actually, we can use scapy to parse the raw bytes
+                            from scapy.all import IP as ScapyIP
+                            raw_bytes = packet.raw
+                            scapy_pkt = ScapyIP(raw_bytes)
+                            
+                            allow = self._packet_handler(scapy_pkt, callback)
+                            if allow:
+                                w.send(packet)
+                        except TimeoutError:
+                            continue
+            except ImportError:
+                print("[!] pydivert not installed. Falling back to scapy.")
+                self._fallback_scapy(callback)
+            except PermissionError:
+                print("[!] Permission Denied. You must run as Administrator for pydivert (WFP) to work.")
+                self._fallback_scapy(callback)
+        else:
+            self._fallback_scapy(callback)
+
+    def _fallback_scapy(self, callback: Callable):
         try:
             sniff(
                 prn=lambda p: self._packet_handler(p, callback),
@@ -57,7 +95,7 @@ class PacketCapture:
                 stop_filter=lambda p: not self.running,
             )
         except Exception as e:
-            if "winpcap is not installed" in str(e).lower():
+            if "winpcap is not installed" in str(e).lower() or "npcap" in str(e).lower():
                 print(
                     "[!] Windows PCAP not found. Packet capture disabled. Use simulation script."
                 )

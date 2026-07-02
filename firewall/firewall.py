@@ -210,6 +210,7 @@ class PersonalFirewall:
                 }
             },
         )
+        return action not in ("drop", "block")
 
     def get_stats(self) -> Dict[str, Any]:
         uptime = (

@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -148,12 +149,16 @@ app.include_router(ml.router)
 app.include_router(rules.router)
 
 
-@app.get("/")
-@limiter.limit(settings.RATE_LIMIT)
-def read_root(request: Request):
-    return {
-        "message": "Welcome to the Personal Firewall API. Visit /docs for documentation."
-    }
+import os
+if os.path.exists("frontend/dist"):
+    app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")
+else:
+    @app.get("/")
+    @limiter.limit(settings.RATE_LIMIT)
+    def read_root(request: Request):
+        return {
+            "message": "Welcome to the Personal Firewall API. Visit /docs for documentation."
+        }
 
 
 @app.get("/version", summary="Application Version")
