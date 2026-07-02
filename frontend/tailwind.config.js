@@ -21,7 +21,8 @@ export default {
         danger: 'var(--color-danger)',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Orbitron', 'sans-serif'],
+        mono: ['"Share Tech Mono"', 'monospace'],
       }
     },
   },

@@ -81,7 +81,7 @@ export function DataTable<T extends Record<string, any>>({
   });
 
   return (
-    <div className="glass-panel flex flex-col h-full overflow-hidden">
+    <div className="fui-panel flex flex-col h-full overflow-hidden">
       <div className="p-4 border-b border-border flex justify-between items-center bg-panel/30">
         <div className="relative w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -89,7 +89,7 @@ export function DataTable<T extends Record<string, any>>({
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-border rounded-md leading-5 bg-background text-foreground placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-colors"
+            className="block w-full pl-10 pr-3 py-2 border border-primary/30 rounded-none bg-background/50 text-foreground placeholder-primary/50 focus:outline-none focus:border-primary focus:shadow-[0_0_10px_rgba(0,240,255,0.3)] sm:text-sm font-mono transition-all"
             placeholder={searchPlaceholder}
             value={localSearch}
             onChange={handleSearchChange}
@@ -144,7 +144,7 @@ export function DataTable<T extends Record<string, any>>({
                 return (
                   <tr 
                     key={virtualRow.index} 
-                    className="hover:bg-panel/30 transition-colors flex w-full absolute"
+                    className="hover:bg-primary/10 hover:shadow-[inset_0_0_15px_rgba(0,240,255,0.1)] border-b border-primary/10 transition-all flex w-full absolute"
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
@@ -154,7 +154,7 @@ export function DataTable<T extends Record<string, any>>({
                       <td 
                         key={col.key} 
                         style={{ width: col.width || `${100 / columns.length}%` }}
-                        className="px-6 py-4 whitespace-nowrap text-foreground overflow-hidden text-ellipsis"
+                        className="px-6 py-4 whitespace-nowrap text-foreground overflow-hidden text-ellipsis font-mono text-sm"
                       >
                         {col.render ? col.render(row) : row[col.key]}
                       </td>

@@ -41,6 +41,7 @@ function App() {
 
   return (
     <GlobalErrorBoundary>
+      <div className="scanlines"></div>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Suspense fallback={<LoadingSpinner />}>

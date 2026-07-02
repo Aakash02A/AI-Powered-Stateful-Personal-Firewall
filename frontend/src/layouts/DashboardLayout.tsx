@@ -20,15 +20,15 @@ export function DashboardLayout() {
   const { isConnected } = useWebSocket(); // Initialize global WS connection
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background transition-colors duration-300">
+    <div className="flex h-screen overflow-hidden bg-background font-sans">
       {/* Sidebar */}
       <aside 
         className={`${sidebarOpen ? 'w-64' : 'w-20'} 
         transition-all duration-300 ease-in-out border-r border-border bg-background backdrop-blur-xl flex flex-col`}
       >
-        <div className="h-16 flex items-center justify-center border-b border-border">
-          <ShieldCheck className="w-8 h-8 text-primary" />
-          {sidebarOpen && <span className="ml-3 font-bold text-lg tracking-wider text-foreground">AI-NGFW</span>}
+        <div className="h-16 flex items-center justify-center border-b border-primary/30">
+          <ShieldCheck className="w-8 h-8 text-primary drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]" />
+          {sidebarOpen && <span className="ml-3 font-bold text-lg tracking-wider text-primary neon-text">HUD_SYS</span>}
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4">
@@ -38,10 +38,10 @@ export function DashboardLayout() {
                 <NavLink
                   to={item.to}
                   className={({ isActive }) => 
-                    `flex items-center px-3 py-2 rounded-lg transition-colors ${
+                    `flex items-center px-3 py-2 transition-all duration-300 ${
                       isActive 
-                        ? 'bg-primary/20 text-primary border border-primary/30' 
-                        : 'text-muted hover:bg-panel hover:text-foreground'
+                        ? 'text-primary border-l-2 border-primary bg-primary/10 shadow-[inset_4px_0_10px_rgba(0,240,255,0.1)]' 
+                        : 'text-muted hover:text-primary hover:bg-panel-hover'
                     }`
                   }
                   title={!sidebarOpen ? item.name : undefined}
@@ -57,22 +57,17 @@ export function DashboardLayout() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <header className="h-16 border-b border-border bg-background backdrop-blur-md flex items-center justify-between px-4 lg:px-8 z-10 transition-colors duration-300">
+        <header className="h-16 border-b border-primary/30 bg-background/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-8 z-10">
           <div className="flex items-center">
-            <button onClick={toggleSidebar} className="lg:hidden p-2 mr-3 text-muted hover:text-foreground">
+            <button onClick={toggleSidebar} className="lg:hidden p-2 mr-3 text-primary hover:text-foreground">
               <Menu className="w-6 h-6" />
             </button>
-            <h2 className="text-sm font-medium text-muted uppercase tracking-widest hidden sm:block">Status: <span className="text-primary font-bold">Active</span></h2>
+            <h2 className="text-sm font-medium text-muted uppercase tracking-widest hidden sm:block">
+              SYS.OP_MODE: <span className="text-primary font-bold neon-text">TACTICAL</span>
+            </h2>
           </div>
           
           <div className="flex items-center space-x-4">
-            <button 
-              onClick={toggleTheme}
-              className="p-2 text-muted hover:text-foreground hover:bg-panel rounded-full transition-colors"
-              aria-label="Toggle Theme"
-            >
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
             <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted">System Status:</span>
                 <span className="relative flex h-3 w-3">

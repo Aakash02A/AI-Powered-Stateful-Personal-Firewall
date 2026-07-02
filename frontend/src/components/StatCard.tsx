@@ -23,21 +23,21 @@ export function StatCard({ label, value, icon, trend, trendUp, isLoading }: Stat
   }
 
   return (
-    <div className="glass-panel p-6 flex flex-col relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+    <div className="fui-panel p-6 flex flex-col relative group hover:scale-[1.02] transition-transform duration-300">
       <div className="flex justify-between items-start mb-4 relative z-10">
-        <h3 className="text-muted font-medium text-sm tracking-wider uppercase">{label}</h3>
-        {icon && <div className="text-primary/70 group-hover:text-primary transition-colors">{icon}</div>}
+        <h3 className="text-primary font-medium text-sm tracking-widest uppercase">{label}</h3>
+        {icon && <div className="text-primary/70 group-hover:text-primary group-hover:drop-shadow-[0_0_8px_currentColor] transition-all">{icon}</div>}
       </div>
       <div className="flex items-baseline space-x-2 relative z-10">
-        <span className="text-3xl font-bold text-foreground">{value}</span>
+        <span className="text-3xl font-mono text-foreground neon-text">{value}</span>
         {trend && (
-          <span className={`text-sm font-medium ${trendUp ? 'text-success' : 'text-danger'}`}>
+          <span className={`text-sm font-medium ${trendUp ? 'text-success drop-shadow-[0_0_5px_currentColor]' : 'text-danger drop-shadow-[0_0_5px_currentColor]'}`}>
             {trend}
           </span>
         )}
       </div>
       {/* Background glow effect */}
-      <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
+      <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors" />
     </div>
   );
 }

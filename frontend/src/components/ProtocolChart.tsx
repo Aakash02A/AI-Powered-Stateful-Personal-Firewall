@@ -16,8 +16,8 @@ export function ProtocolChart({ data, isLoading }: ProtocolChartProps) {
 
   if (!data || Object.keys(data).length === 0) {
     return (
-      <div className="glass-panel p-6 h-80 flex flex-col relative">
-        <h3 className="text-muted font-medium text-sm tracking-wider uppercase mb-4">Protocol Distribution</h3>
+      <div className="fui-panel p-6 h-80 flex flex-col relative">
+        <h3 className="text-primary font-bold text-sm tracking-widest uppercase mb-4 border-b border-primary/30 pb-2">Protocol Distribution</h3>
         <EmptyState title="No Protocol Data" description="No traffic has been recorded yet." />
       </div>
     );
@@ -29,8 +29,8 @@ export function ProtocolChart({ data, isLoading }: ProtocolChartProps) {
     .sort((a, b) => b.value - a.value);
 
   return (
-    <div className="glass-panel p-6 h-80 flex flex-col relative">
-      <h3 className="text-muted font-medium text-sm tracking-wider uppercase mb-4">Protocol Distribution</h3>
+    <div className="fui-panel p-6 h-80 flex flex-col relative">
+      <h3 className="text-primary font-bold text-sm tracking-widest uppercase mb-4 border-b border-primary/30 pb-2">Protocol Distribution</h3>
       <div className="flex-1 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -49,8 +49,8 @@ export function ProtocolChart({ data, isLoading }: ProtocolChartProps) {
               ))}
             </Pie>
             <Tooltip 
-              contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #334155', borderRadius: '0.5rem', color: '#F1F5F9' }}
-              itemStyle={{ color: '#F1F5F9' }}
+              contentStyle={{ backgroundColor: 'var(--bg-panel)', border: '1px solid var(--color-primary)', borderRadius: '0', color: 'var(--text-foreground)', boxShadow: '0 0 10px rgba(0, 240, 255, 0.2)' }}
+              itemStyle={{ color: 'var(--color-primary)', fontFamily: 'monospace' }}
             />
             <Legend verticalAlign="bottom" height={36} />
           </PieChart>

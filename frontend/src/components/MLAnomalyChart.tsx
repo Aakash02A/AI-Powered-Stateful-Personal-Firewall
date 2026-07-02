@@ -41,22 +41,22 @@ export function MLAnomalyChart() {
 
   if (isLoading) {
     return (
-      <div className="bg-background border border-border rounded-xl p-6 shadow-sm min-h-[400px] flex items-center justify-center">
-        <div className="text-muted animate-pulse">Loading anomaly trend data...</div>
+      <div className="fui-panel p-6 min-h-[400px] flex items-center justify-center">
+        <div className="text-primary animate-pulse font-mono neon-text">Loading anomaly trend data...</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-background border border-border rounded-xl p-6 shadow-sm min-h-[400px] flex flex-col">
-      <div className="flex justify-between items-center mb-6">
+    <div className="fui-panel p-6 min-h-[400px] flex flex-col">
+      <div className="flex justify-between items-center mb-6 border-b border-primary/30 pb-2">
         <div className="flex items-center gap-2">
-          <BrainCircuit className="w-5 h-5 text-purple-400" />
-          <h3 className="text-lg font-medium text-foreground">Anomaly Score Trend (24h)</h3>
+          <BrainCircuit className="w-5 h-5 text-primary drop-shadow-[0_0_8px_currentColor]" />
+          <h3 className="text-lg font-bold text-primary tracking-widest uppercase">Anomaly Score Trend (24h)</h3>
         </div>
-        <div className="flex gap-4 text-xs">
-          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-purple-500"></div> Avg Score</div>
-          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> Max Score</div>
+        <div className="flex gap-4 text-xs font-mono">
+          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-secondary drop-shadow-[0_0_5px_currentColor]"></div> Avg Score</div>
+          <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-danger drop-shadow-[0_0_5px_currentColor]"></div> Max Score</div>
         </div>
       </div>
       
@@ -69,18 +69,20 @@ export function MLAnomalyChart() {
         <div className="flex-1 min-h-0">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-primary)" strokeOpacity={0.15} vertical={false} />
               <XAxis 
                 dataKey="time" 
-                stroke="#64748b" 
-                fontSize={12}
+                stroke="var(--color-primary)" 
+                fontSize={10}
+                fontFamily="var(--font-mono)"
                 tickLine={false}
                 axisLine={false}
                 minTickGap={30}
               />
               <YAxis 
-                stroke="#64748b" 
-                fontSize={12}
+                stroke="var(--color-primary)" 
+                fontSize={10}
+                fontFamily="var(--font-mono)"
                 tickLine={false}
                 axisLine={false}
                 domain={[0, 1]}
@@ -88,13 +90,15 @@ export function MLAnomalyChart() {
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#0f172a', 
-                  border: '1px solid #1e293b',
-                  borderRadius: '0.5rem',
-                  color: '#f8fafc'
+                  backgroundColor: 'var(--bg-panel)', 
+                  border: '1px solid var(--color-primary)',
+                  boxShadow: '0 0 10px rgba(0, 240, 255, 0.2)',
+                  borderRadius: '0',
+                  color: 'var(--text-foreground)',
+                  fontFamily: 'monospace'
                 }}
-                labelStyle={{ color: '#94a3b8', marginBottom: '0.25rem' }}
-                itemStyle={{ color: '#818cf8' }}
+                labelStyle={{ color: 'var(--color-primary)', marginBottom: '0.25rem' }}
+                itemStyle={{ color: 'var(--color-secondary)' }}
                 formatter={(value: any, name: any) => {
                   return [`${value}`, name === 'avg' ? 'Average Score' : 'Max Score'];
                 }}
@@ -106,15 +110,15 @@ export function MLAnomalyChart() {
                   return label;
                 }}
               />
-              <ReferenceLine y={0.7} stroke="#ef4444" strokeDasharray="3 3" label={{ position: 'insideTopLeft', value: 'Threat Threshold', fill: '#ef4444', fontSize: 10 }} />
+              <ReferenceLine y={0.7} stroke="var(--color-danger)" strokeDasharray="3 3" label={{ position: 'insideTopLeft', value: 'Threat Threshold', fill: 'var(--color-danger)', fontSize: 10, fontFamily: 'monospace' }} />
               
               <Line 
                 type="monotone" 
                 dataKey="avg" 
-                stroke="#a855f7" 
+                stroke="var(--color-secondary)" 
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 4, fill: '#a855f7' }}
+                activeDot={{ r: 4, fill: 'var(--color-secondary)', stroke: 'var(--color-secondary)' }}
                 isAnimationActive={false}
               />
               
