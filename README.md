@@ -57,8 +57,13 @@ For an in-depth view of the asynchronous queuing and Thread Health Monitoring, s
 
 ## 💻 Usage
 
-### 1. Standalone CLI
-Run the daemon (Requires Root/Administrator capabilities):
+### 1. Windows Desktop Edition (Consumer App)
+The new consumer-friendly **Windows Desktop Application (v1.1.0)** is the recommended way to run the firewall on Windows.
+- It includes a native installer, background Windows Service, System Tray icon, and Auto-Updater.
+- **[View Installation Guide](docs/Installation_Guide.md)**
+
+### 2. Standalone CLI (Developer Mode)
+Run the daemon manually (Requires Root/Administrator capabilities):
 ```bash
 python -m firewall.cli start
 ```

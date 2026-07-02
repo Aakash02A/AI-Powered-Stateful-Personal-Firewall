@@ -67,13 +67,39 @@ class PacketCapture:
                             if packet is None:
                                 continue
                             
-                            # Convert pydivert packet to our format (roughly)
-                            # Actually, we can use scapy to parse the raw bytes
-                            from scapy.all import IP as ScapyIP
-                            raw_bytes = packet.raw
-                            scapy_pkt = ScapyIP(raw_bytes)
+                            # pydivert provides parsed fields natively, so we bypass scapy
+                            protocol = "OTHER"
+                            src_port = 0
+                            dst_port = 0
+                            flags = ""
                             
-                            allow = self._packet_handler(scapy_pkt, callback)
+                            if packet.tcp:
+                                protocol = "TCP"
+                                src_port = packet.src_port
+                                dst_port = packet.dst_port
+                                # Approximation for flags if needed, pydivert has properties like packet.tcp.syn
+                            elif packet.udp:
+                                protocol = "UDP"
+                                src_port = packet.src_port
+                                dst_port = packet.dst_port
+                            elif packet.icmp or packet.icmpv6:
+                                protocol = "ICMP"
+                                
+                            parsed_pkt = Packet(
+                                timestamp=datetime.now(),
+                                src_ip=packet.src_addr,
+                                src_port=src_port,
+                                dst_ip=packet.dst_addr,
+                                dst_port=dst_port,
+                                protocol=protocol,
+                                flags=flags,
+                                size=len(packet.raw),
+                                raw=packet.raw,
+                            )
+                            
+                            result = callback(parsed_pkt)
+                            allow = result if result is not None else True
+                            
                             if allow:
                                 w.send(packet)
                         except TimeoutError:

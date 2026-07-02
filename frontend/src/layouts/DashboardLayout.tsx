@@ -1,7 +1,7 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import { useUIStore } from '../store/uiStore';
 import { useThemeStore } from '../store/themeStore';
-import { ShieldCheck, Activity, AlertTriangle, Network, Settings, BarChart2, BookOpen, Menu, Sun, Moon } from 'lucide-react';
+import { ShieldCheck, Activity, AlertTriangle, Network, Settings, BarChart2, BookOpen, Menu } from 'lucide-react';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 const NAVIGATION = [
@@ -16,7 +16,6 @@ const NAVIGATION = [
 
 export function DashboardLayout() {
   const { sidebarOpen, toggleSidebar } = useUIStore();
-  const { isDark, toggleTheme } = useThemeStore();
   const { isConnected } = useWebSocket(); // Initialize global WS connection
 
   return (
