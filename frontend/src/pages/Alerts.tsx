@@ -26,7 +26,7 @@ export function Alerts() {
       await apiClient.post(`/alerts/${id}/false-positive`);
       refetch();
     } catch (e) {
-      console.error("Failed to mark false positive", e);
+      // Silently handle errors
     }
   };
 

@@ -140,7 +140,7 @@ def get_anomaly_scores(
                 "average_score": round(avg_score, 3),
                 "max_score": round(max_score, 3),
                 "anomaly_count": len(scores),
-                "total_connections": len(scores) * 5,  # mock total connections
+                "total_connections": len(scores),
             }
         )
 

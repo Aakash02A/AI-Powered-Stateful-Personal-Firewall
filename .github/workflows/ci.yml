@@ -21,33 +21,33 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        cd backend && pip install -r requirements.txt
         
     - name: Lint with Flake8
       run: |
-        flake8 firewall api analytics scripts tests
+        cd backend && flake8 firewall api analytics tests
         
     - name: Run Tests with Coverage
       run: |
-        pytest tests/ --cov=firewall --cov=api --cov-report=xml
+        cd backend && pytest tests/ --cov=firewall --cov=api --cov-report=xml
         
     - name: Security Scan (Bandit)
       run: |
-        bandit -r firewall/ api/
+        cd backend && bandit -r firewall/ api/
         
     - name: Dependency Audit (pip-audit)
       run: |
-        pip-audit -r requirements.txt
+        cd backend && pip-audit -r requirements.txt
         
     - name: Generate SBOM (CycloneDX)
       run: |
-        cyclonedx-py requirements requirements.txt -o sbom.json
+        cd backend && cyclonedx-py requirements requirements.txt -o sbom.json
         
     - name: Upload SBOM
       uses: actions/upload-artifact@v4
       with:
         name: sbom
-        path: sbom.json
+        path: backend/sbom.json
 
   frontend-test:
     runs-on: ubuntu-latest

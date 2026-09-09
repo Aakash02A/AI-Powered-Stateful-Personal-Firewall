@@ -1,16 +1,19 @@
+import os
 from fastapi.testclient import TestClient
 
 from api.main import app
 
 client = TestClient(app)
 
-HEADERS = {"X-API-Key": "default_dev_key"}
+HEADERS = {"X-API-Key": os.environ.get("API_KEY", "test_api_key_for_testing")}
 
 
 def test_read_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert "message" in response.json()
+    # Root endpoint serves frontend HTML when frontend/dist exists
+    content_type = response.headers.get("content-type", "")
+    assert "text/html" in content_type or "application/json" in content_type
 
 
 def test_get_stats():

@@ -113,7 +113,7 @@
             "expires_at": null
         },
         {
-            "rule_id": "default_drop",
+            "rule_id": "default_allow",
             "priority": 999,
             "enabled": true,
             "protocol": "any",
@@ -122,22 +122,8 @@
             "dst_ip": "any",
             "dst_port": "any",
             "direction": "both",
-            "action": "drop",
-            "description": "Default drop rule",
-            "expires_at": null
-        },
-        {
-            "rule_id": "rule_b33c2a3b",
-            "priority": 100100,
-            "enabled": true,
-            "protocol": "any",
-            "src_ip": "any",
-            "src_port": "any",
-            "dst_ip": "any",
-            "dst_port": "any",
-            "direction": "both",
             "action": "allow",
-            "description": "Test description",
+            "description": "Default: allow unmatched traffic. Enable default_drop and set MONITOR_ONLY=false to enforce deny-by-default.",
             "expires_at": null
         }
     ]

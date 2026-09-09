@@ -32,86 +32,335 @@ For an in-depth view of the asynchronous queuing and Thread Health Monitoring, s
 
 ---
 
-## ⚙️ Installation
+## ⚙️ System Requirements
 
-1. **Prerequisites**: Python 3.9+ and Git. (On Windows, **Npcap** must be installed for raw packet capture).
-2. **Clone the Repo**:
+### Backend
+- Python 3.9 or higher
+- SQLite3 (included with Python)
+- For Windows packet capture: Npcap (https://npcap.com/)
+- For Linux packet capture: libpcap development headers
+
+### Frontend
+- Node.js 18.x or higher
+- npm or yarn package manager
+
+### Optional
+- Docker and Docker Compose (for containerized deployment)
+- AbuseIPDB API key (for threat intelligence integration)
+
+---
+
+## 📦 Installation
+
+### Quick Setup (Recommended)
+
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/Aakash02A/AI-Powered-Stateful-Personal-Firewall.git
    cd AI-Powered-Stateful-Personal-Firewall
    ```
-3. **Setup Environment**:
+
+2. **Run the setup script**:
    ```bash
-   cp .env.example .env
+   python setup.py
    ```
-4. **Install Dependencies**:
+   
+   This will:
+   - Create necessary directories
+   - Generate secure API keys
+   - Create `.env` configuration files
+   - Initialize the database
+
+3. **Install Python dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
-5. **Database Initialization**:
+
+4. **Install frontend dependencies**:
+   ```bash
+   cd frontend
+   npm install
+   cd ..
+   ```
+
+### Manual Setup
+
+If you prefer manual configuration:
+
+1. **Create backend environment file**:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` and set your secure API key:
+   ```
+   API_KEY=your_secure_api_key_here
+   ```
+
+2. **Create frontend environment file**:
+   ```bash
+   cp frontend/.env.example frontend/.env
+   ```
+   Edit `frontend/.env` and set the same API key:
+   ```
+   VITE_API_KEY=your_secure_api_key_here
+   ```
+
+3. **Create necessary directories**:
+   ```bash
+   mkdir -p data/logs ml/models ml/data
+   ```
+
+4. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   cd frontend && npm install && cd ..
+   ```
+
+5. **Initialize database**:
    ```bash
    python -m alembic upgrade head
    ```
 
 ---
 
-## 💻 Usage
+## � Starting the Application
 
-### 1. Windows Desktop Edition (v1.1.0)
-The new consumer-friendly **Windows Desktop Application (v1.1.0)** is the recommended way to run the firewall on Windows. It includes a native installer, background Windows Service, System Tray icon, and Auto-Updater.
+### Development Mode
 
-![FUI Dashboard Placeholder](docs/images/dashboard_preview.png)
-*(Screenshot: The new Futuristic UI Dashboard running natively on Windows)*
+1. **Start the backend API**:
+   ```bash
+   python -m api.main
+   ```
+   The API will be available at `http://127.0.0.1:8000`
 
-#### Download & Installation
-1. Go to the [Releases](https://github.com/Aakash02A/AI-Powered-Stateful-Personal-Firewall/releases/latest) page and download `AIFirewall_Setup_v1.1.0.exe`.
-2. Double-click the installer and follow the Setup Wizard.
-3. The firewall service will automatically start in the background.
+2. **Start the frontend** (in a new terminal):
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+   The dashboard will be available at `http://localhost:5173`
 
-#### Quick Start
-- Click the **AI Firewall shield icon** in your System Tray (bottom right of your screen).
-- Select **Open Dashboard** to view live traffic and manage alerts.
-- See the **[Beta Testing Guide](BETA_TESTING_GUIDE.md)** for testing instructions.
+### Production Mode
 
-#### Troubleshooting
-If you encounter issues (e.g. Service not starting, blank dashboard, or SmartScreen warnings), please see our comprehensive **[Troubleshooting Guide](docs/Troubleshooting_Guide.md)**.
+1. **Build the frontend**:
+   ```bash
+   cd frontend
+   npm run build
+   cd ..
+   ```
 
+2. **Start the backend**:
+   ```bash
+   python -m api.main
+   ```
+   The application will serve both the API and the built frontend at `http://127.0.0.1:8000`
 
-### 2. Standalone CLI (Developer Mode)
-Run the daemon manually (Requires Root/Administrator capabilities):
+### Docker Deployment
+
+```bash
+docker-compose up -d
+```
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Backend (.env)
+- `API_KEY`: Secure API key for authentication (required)
+- `HOST`: API host address (default: 127.0.0.1)
+- `PORT`: API port (default: 8000)
+- `LOG_LEVEL`: Logging level (default: INFO)
+- `DATABASE_URL`: Database connection string (default: sqlite:///data/firewall.db)
+- `MONITOR_ONLY`: When true, logs packets without dropping (default: true)
+- `CORS_ORIGINS`: Allowed CORS origins (default: ["*"])
+- `ABUSEIPDB_API_KEY`: Optional API key for threat intelligence
+
+#### Frontend (frontend/.env)
+- `VITE_API_BASE_URL`: Backend API URL (default: http://localhost:8000/api/v1)
+- `VITE_WS_URL`: WebSocket URL (default: ws://localhost:8000/api/v1/ws/stream)
+- `VITE_API_KEY`: API key for authentication (must match backend)
+
+### Firewall Rules
+
+Edit `firewall/config/rules.json` to customize firewall rules. The system includes sensible defaults for common traffic patterns.
+
+### IDS Configuration
+
+Edit `firewall/config/ids_config.json` to adjust intrusion detection thresholds for:
+- Port scan detection
+- SYN flood detection
+- ICMP flood detection
+- Brute force detection
+
+---
+
+## 🔌 API Usage
+
+### Authentication
+
+All API endpoints require an `X-API-Key` header with your configured API key.
+
+```bash
+curl -H "X-API-Key: YOUR_API_KEY" http://localhost:8000/api/v1/stats
+```
+
+### Interactive Documentation
+
+Interactive Swagger documentation is available at:
+- **`http://localhost:8000/docs`** (Swagger UI)
+- **`http://localhost:8000/redoc`** (ReDoc)
+
+### Common Endpoints
+
+**Get Live Stats**
+```bash
+curl -H "X-API-Key: YOUR_API_KEY" http://localhost:8000/api/v1/stats
+```
+
+**Get Top Talkers**
+```bash
+curl -H "X-API-Key: YOUR_API_KEY" http://localhost:8000/api/v1/top-talkers
+```
+
+**Get Recent Alerts**
+```bash
+curl -H "X-API-Key: YOUR_API_KEY" http://localhost:8000/api/v1/alerts?limit=10
+```
+
+**Get Active Connections**
+```bash
+curl -H "X-API-Key: YOUR_API_KEY" http://localhost:8000/api/v1/connections?limit=10
+```
+
+### WebSocket Connection
+
+Connect to the WebSocket for real-time alerts:
+```javascript
+const ws = new WebSocket('ws://localhost:8000/api/v1/ws/stream?api_key=YOUR_API_KEY');
+```
+
+---
+
+## 🧪 Testing
+
+### Run All Tests
+```bash
+pytest tests/ -v
+```
+
+### Run Specific Test Suite
+```bash
+pytest tests/test_api.py -v
+pytest tests/test_ids_engine.py -v
+```
+
+### Run with Coverage
+```bash
+pytest tests/ --cov=. --cov-report=html
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm test
+```
+
+---
+
+## 🛠️ CLI Commands
+
+### Start Firewall
 ```bash
 python -m firewall.cli start
 ```
 
-Other CLI commands:
-- `python -m firewall.cli rules` (View loaded rules)
-- `python -m firewall.cli alerts` (View generated IDS alerts)
-- `python -m firewall.cli db-upgrade` (Manually run migrations)
-
-### 2. Docker Deployment
-We recommend using Docker Compose for an isolated, secure deployment. The container drops root privileges dynamically and retains only `NET_ADMIN`.
+### View Rules
 ```bash
-docker-compose up -d
+python -m firewall.cli rules
 ```
-See [DEPLOYMENT.md](DEPLOYMENT.md) for environment profile specifics.
+
+### View Alerts
+```bash
+python -m firewall.cli alerts
+```
+
+### Query Connections
+```bash
+python -m firewall.cli queries --limit=10
+```
+
+### Database Migration
+```bash
+python -m firewall.cli db-upgrade
+```
 
 ---
 
-## 🔌 API Examples
+## 🔒 Security Considerations
 
-The core API runs locally on `http://127.0.0.1:8000`. By default, endpoints require an `X-API-Key` header (default: `default_dev_key`).
-Interactive Swagger documentation is automatically available at **`http://localhost:8000/docs`**.
+### Important Security Notes
 
-**1. Get Live Stats**
-```bash
-curl -H "X-API-Key: default_dev_key" http://localhost:8000/api/v1/stats
-```
-**2. Get Top Talkers**
-```bash
-curl -H "X-API-Key: default_dev_key" http://localhost:8000/api/v1/top-talkers
-```
-**3. Real-Time WebSockets**
-Connect a client to `ws://localhost:8000/ws/alerts` for instantaneous JSON broadcasts whenever the IDS fires.
+1. **API Key Security**: Never commit your `.env` file to version control. Always use strong, randomly generated API keys.
+
+2. **Monitor Mode**: The firewall defaults to `MONITOR_ONLY=true` for safety. Set to `false` only when you're ready for active packet blocking.
+
+3. **Network Access**: The firewall requires administrator/root privileges for packet capture. Only run trusted code with these privileges.
+
+4. **CORS Configuration**: In production, restrict `CORS_ORIGINS` to specific domains instead of using wildcard `["*"]`.
+
+5. **Database Security**: The default SQLite database is suitable for single-user deployments. For multi-user scenarios, consider PostgreSQL or MySQL.
+
+### Production Deployment Checklist
+
+- [ ] Set strong API keys in environment variables
+- [ ] Configure appropriate CORS origins
+- [ ] Set `MONITOR_ONLY=false` for active blocking
+- [ ] Use HTTPS/TLS for API communication
+- [ ] Configure firewall rules for your network
+- [ ] Set up regular database backups
+- [ ] Configure log rotation
+- [ ] Monitor system resources
+- [ ] Test failover procedures
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**API fails to start with "API_KEY not set" error**
+- Ensure your `.env` file contains a valid `API_KEY` value
+- Run `python setup.py` to regenerate configuration
+
+**Frontend cannot connect to backend**
+- Verify both services are running
+- Check `VITE_API_BASE_URL` in frontend/.env
+- Ensure API key matches between backend and frontend
+
+**Packet capture not working on Windows**
+- Install Npcap from https://npcap.com/
+- Run the application as Administrator
+- Ensure Npcap is installed in "WinPcap API-compatible Mode"
+
+**Database errors**
+- Run `python -m alembic upgrade head` to ensure migrations are applied
+- Check that the `data` directory exists and is writable
+
+**ML model not loading**
+- Ensure `ml/models/anomaly_detector_v1.0.joblib` exists
+- Check that scikit-learn version is compatible
+- See ML training documentation for model generation
+
+### Getting Help
+
+- Check the [Architecture Documentation](ARCHITECTURE.md) for system design details
+- Review test files for usage examples
+- Open an issue on GitHub for bugs or feature requests
+- See [SECURITY.md](SECURITY.md) for security vulnerability reporting
 
 ---
 
@@ -123,6 +372,8 @@ Connect a client to `ws://localhost:8000/ws/alerts` for instantaneous JSON broad
 - [x] Phase 4: React / Next.js Admin Dashboard (UI)
 - [x] Phase 5: Machine Learning Anomaly Detection & Auto-Mitigation
 - [ ] Phase 6: eBPF / Kernel-Level Integration
+- [ ] Phase 7: Multi-user Support & RBAC
+- [ ] Phase 8: Advanced Analytics & Reporting
 
 ---
 

@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   firewall:
-    build: .
+    build: ./backend
     container_name: ai-firewall-backend
     cap_add:
       - NET_ADMIN
     ports:
       - "8000:8000"
     volumes:
-      - ./config/rules.json:/app/config/rules.json
+      - ./backend/firewall/config/rules.json:/app/config/rules.json
       - firewall-data:/app/data
     environment:
       - LOG_LEVEL=INFO

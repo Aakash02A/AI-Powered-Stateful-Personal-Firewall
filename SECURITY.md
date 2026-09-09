@@ -12,7 +12,7 @@ Only the latest major version of the AI-Powered Stateful Personal Firewall recei
 
 Security is a core focus of this project. If you discover a security vulnerability, please **DO NOT** open a public issue.
 
-Instead, please send an email to `security@example.com` (replace with actual contact) with the following details:
+Instead, please send an email to `[EMAIL_ADDRESS]` with the following details:
 - A description of the vulnerability.
 - Steps to reproduce the issue.
 - Potential impact.

@@ -8,6 +8,12 @@ db_fd, db_path = tempfile.mkstemp(suffix=".db")
 os.close(db_fd)
 os.environ["DATABASE_URL"] = f"sqlite:///{db_path}"
 
+# Set test API key for all tests
+os.environ["API_KEY"] = "test_api_key_for_testing"
+
+# Set permissive CORS for testing
+os.environ["CORS_ORIGINS"] = '["*"]'
+
 
 def cleanup_db():
     try:

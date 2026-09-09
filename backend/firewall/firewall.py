@@ -18,6 +18,15 @@ from firewall.queue_manager import QueueManager
 from firewall.rule_engine import RuleEngine
 
 
+def _monitor_only_enabled() -> bool:
+    try:
+        from api.config import settings
+
+        return bool(settings.MONITOR_ONLY)
+    except Exception:
+        return True
+
+
 class PersonalFirewall:
     def __init__(
         self,
@@ -25,7 +34,11 @@ class PersonalFirewall:
         db_path: str = "sqlite:///data/firewall.db",
         packet_logger=None,
         event_logger=None,
+        monitor_only=None,
     ):
+        self.monitor_only = (
+            _monitor_only_enabled() if monitor_only is None else bool(monitor_only)
+        )
         self.packet_capture = PacketCapture()
         self.rule_engine = RuleEngine()
         self.flow_engine = FlowEngine()
@@ -129,26 +142,22 @@ class PersonalFirewall:
         rule_id = rule.rule_id if rule else "default"
 
         if action == "drop":
-            # For a real firewall we'd actually drop it via iptables/NFQUEUE
-            # Since this is a passive monitor right now, we just log it as dropped.
+            # WinDivert drops by not reinjecting. Scapy cannot drop; it only logs.
             pass
-        elif action == "block":
+        elif action == "block" and not self.monitor_only:
             # Actively block by sending RST (TCP) or ICMP Unreachable (UDP)
             try:
                 if packet.protocol == "TCP":
-                    # Forge RST packet
                     rst = IP(src=packet.dst_ip, dst=packet.src_ip) / TCP(
                         sport=packet.dst_port, dport=packet.src_port, flags="R"
                     )
                     send(rst, verbose=False)
                 elif packet.protocol == "UDP":
-                    # Forge ICMP Port Unreachable
                     unreach = IP(src=packet.dst_ip, dst=packet.src_ip) / ICMP(
                         type=3, code=3
                     )
                     send(unreach, verbose=False)
             except Exception as e:
-                # If running without privileges, sending might fail. Log it internally.
                 self.event_logger.error(f"Failed to send block response: {e}")
 
         # Run IDS
@@ -210,6 +219,8 @@ class PersonalFirewall:
                 }
             },
         )
+        if self.monitor_only:
+            return True
         return action not in ("drop", "block")
 
     def get_stats(self) -> Dict[str, Any]:

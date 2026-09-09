@@ -18,13 +18,17 @@ export function useWebSocket() {
   const connect = useCallback(() => {
     if (ws.current?.readyState === WebSocket.OPEN) return;
 
+    const apiKey = import.meta.env.VITE_API_KEY;
+    if (!apiKey) {
+      throw new Error('VITE_API_KEY environment variable is required');
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
     const defaultWsUrl = `${protocol}//${host}/api/v1/ws/stream`;
     const wsUrl = import.meta.env.VITE_WS_URL || defaultWsUrl;
-    const apiKey = import.meta.env.VITE_API_KEY || 'default_dev_key';
     const urlWithAuth = `${wsUrl}?api_key=${apiKey}`;
-    
+
     ws.current = new WebSocket(urlWithAuth);
 
     ws.current.onopen = () => {
@@ -44,25 +48,25 @@ export function useWebSocket() {
 
     ws.current.onmessage = (event) => {
       if (event.data === 'pong') return; // Ignore heartbeat responses
-      
+
       try {
         const msg: WebSocketPayload = JSON.parse(event.data);
         setLastMessage(msg);
         setLastMessageTime(new Date().toISOString());
-        
+
         // Notify on high severity
         if (msg.topic === 'alert' && ['CRITICAL', 'HIGH'].includes(msg.data.severity)) {
            toast.error(`[${msg.data.severity}] ${msg.data.alert_type}: ${msg.data.src_ip}`);
         }
       } catch (err) {
-        console.error('Failed to parse WS message', err);
+        // Silently handle parse errors
       }
     };
 
     ws.current.onclose = () => {
       setIsConnected(false);
       if (heartbeatInterval.current) clearInterval(heartbeatInterval.current);
-      
+
       // Exponential backoff reconnect
       const timeout = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
       reconnectTimeout.current = setTimeout(() => {
@@ -72,7 +76,6 @@ export function useWebSocket() {
     };
 
     ws.current.onerror = (error) => {
-      console.error('WebSocket Error', error);
       ws.current?.close();
     };
   }, []);
