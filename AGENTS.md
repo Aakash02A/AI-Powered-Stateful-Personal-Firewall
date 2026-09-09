@@ -32,7 +32,7 @@ AI-Powered Stateful Personal Firewall - A Next-Generation Personal Firewall (NGF
 **Start Backend API**:
 ```bash
 cd backend
-python -m api.main
+python -m firewall.cli start-api
 ```
 
 **Start Frontend (Development)**:

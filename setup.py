@@ -177,7 +177,7 @@ def main():
     print("\nNext steps:")
     print("1. Install Python dependencies: cd backend && pip install -r requirements.txt")
     print("2. Install frontend dependencies: cd frontend && npm install")
-    print("3. Start the backend: cd backend && python -m api.main")
+    print("3. Start the backend: cd backend && python -m firewall.cli start-api")
     print("4. Start the frontend (in another terminal): cd frontend && npm run dev")
     print("\nFor production deployment, see README.md")
 
