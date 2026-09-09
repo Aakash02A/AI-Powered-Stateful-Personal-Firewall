@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shield FW | Network Rules</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .rules-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        .rule-status.active { color: var(--success); font-weight: 600; }
+        .rule-status.inactive { color: var(--text-muted); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-shield-halved text-primary icon-logo"></i>
+                <span class="brand-name">Shield FW</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="rules.html" class="nav-item active"><i class="fa-solid fa-network-wired"></i> Network Rules</a>
+                <a href="logs.html" class="nav-item"><i class="fa-solid fa-list-check"></i> Threat Logs</a>
+                <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+                <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar">AD</div>
+                    <span>Admin User</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="page-title">
+                    <h2>Network Rules</h2>
+                </div>
+                <div class="topbar-actions">
+                    <span id="connection-status" class="status-container">
+                        <span class="badge badge-success"><i class="fa-solid fa-check"></i> Connected</span>
+                    </span>
+                    <div class="notifications">
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="content">
+                <div class="rules-actions">
+                    <p class="text-muted">Manage your firewall inbound and outbound traffic rules.</p>
+                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add New Rule</button>
+                </div>
+
+                <div class="module-card full-width">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Name</th>
+                                    <th>Action</th>
+                                    <th>Protocol</th>
+                                    <th>Port Range</th>
+                                    <th>Direction</th>
+                                    <th>Options</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="rule-status active"><i class="fa-solid fa-circle fa-2xs"></i> Active</span></td>
+                                    <td>Allow Web Traffic</td>
+                                    <td><span class="badge badge-success">Allow</span></td>
+                                    <td>TCP</td>
+                                    <td>80, 443</td>
+                                    <td>Outbound</td>
+                                    <td>
+                                        <button class="btn btn-outline"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn btn-outline text-danger"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rule-status active"><i class="fa-solid fa-circle fa-2xs"></i> Active</span></td>
+                                    <td>Block Malicious Subnet</td>
+                                    <td><span class="badge badge-danger">Block</span></td>
+                                    <td>Any</td>
+                                    <td>Any</td>
+                                    <td>Inbound</td>
+                                    <td>
+                                        <button class="btn btn-outline"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn btn-outline text-danger"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rule-status inactive"><i class="fa-solid fa-circle fa-2xs"></i> Disabled</span></td>
+                                    <td>Allow SSH (Local)</td>
+                                    <td><span class="badge badge-success">Allow</span></td>
+                                    <td>TCP</td>
+                                    <td>22</td>
+                                    <td>Inbound</td>
+                                    <td>
+                                        <button class="btn btn-outline"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="btn btn-outline text-danger"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Bottombar -->
+            <footer class="bottombar">
+                <div class="footer-content">
+                    <span>&copy; 2026 Personal Firewall Dashboard. All rights reserved.</span>
+                    <div class="footer-links">
+                        <a href="#">Documentation</a>
+                        <a href="#">Support</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

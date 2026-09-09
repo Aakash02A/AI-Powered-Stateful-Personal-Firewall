@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shield FW | Threat Logs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .filter-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            flex: 1;
+        }
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-shield-halved text-primary icon-logo"></i>
+                <span class="brand-name">Shield FW</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="rules.html" class="nav-item"><i class="fa-solid fa-network-wired"></i> Network Rules</a>
+                <a href="logs.html" class="nav-item active"><i class="fa-solid fa-list-check"></i> Threat Logs</a>
+                <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+                <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar">AD</div>
+                    <span>Admin User</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="page-title">
+                    <h2>Threat Logs</h2>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-outline" id="refresh-btn">
+                        <i class="fa-solid fa-rotate-right"></i> Refresh
+                    </button>
+                    <div class="notifications">
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="content">
+                <div class="filter-bar">
+                    <input type="text" class="filter-input" placeholder="Search IP or event...">
+                    <select class="filter-select">
+                        <option value="">All Severities</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <select class="filter-select">
+                        <option value="">Last 24 Hours</option>
+                        <option value="7days">Last 7 Days</option>
+                        <option value="30days">Last 30 Days</option>
+                    </select>
+                    <button class="btn btn-outline"><i class="fa-solid fa-download"></i> Export</button>
+                </div>
+
+                <div class="module-card full-width">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Severity</th>
+                                    <th>Source IP</th>
+                                    <th>Destination IP</th>
+                                    <th>Event Details</th>
+                                    <th>Action Taken</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-09-10 00:15:22</td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                    <td>192.168.1.105</td>
+                                    <td>8.8.8.8</td>
+                                    <td>Port Scan Detected (Multiple SYN packets)</td>
+                                    <td><span class="badge badge-secondary">Blocked</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-09-10 00:12:05</td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                    <td>10.0.0.50</td>
+                                    <td>104.21.44.11</td>
+                                    <td>Unusual Traffic Volume (Anomaly Score: 0.85)</td>
+                                    <td><span class="badge badge-secondary">Logged</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-09-10 00:08:41</td>
+                                    <td><span class="badge bg-success">Low</span></td>
+                                    <td>192.168.1.5</td>
+                                    <td>1.1.1.1</td>
+                                    <td>ICMP Ping Request</td>
+                                    <td><span class="badge badge-secondary">Allowed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Bottombar -->
+            <footer class="bottombar">
+                <div class="footer-content">
+                    <span>&copy; 2026 Personal Firewall Dashboard. All rights reserved.</span>
+                    <div class="footer-links">
+                        <a href="#">Documentation</a>
+                        <a href="#">Support</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

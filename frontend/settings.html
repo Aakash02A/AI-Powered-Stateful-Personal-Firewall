@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shield FW | Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .settings-section {
+            margin-bottom: 32px;
+        }
+        .settings-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+            max-width: 500px;
+        }
+        .settings-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .settings-input {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .settings-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--blue-light);
+        }
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background-color: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .toggle-switch.active {
+            background-color: var(--primary);
+        }
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(20px);
+        }
+        .settings-helper {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-shield-halved text-primary icon-logo"></i>
+                <span class="brand-name">Shield FW</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="rules.html" class="nav-item"><i class="fa-solid fa-network-wired"></i> Network Rules</a>
+                <a href="logs.html" class="nav-item"><i class="fa-solid fa-list-check"></i> Threat Logs</a>
+                <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+                <a href="settings.html" class="nav-item active"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar">AD</div>
+                    <span>Admin User</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="page-title">
+                    <h2>Configuration Settings</h2>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                    </button>
+                    <div class="notifications">
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="content">
+                <div class="module-card full-width">
+                    <div class="module-header border-bottom">
+                        <h3 class="module-title">General Engine Settings</h3>
+                    </div>
+                    <div class="module-body" style="padding-top: 24px;">
+                        
+                        <div class="settings-section">
+                            <div class="settings-form-group">
+                                <label class="settings-label">Active Blocking Mode</label>
+                                <div class="toggle-container">
+                                    <div class="toggle-switch active">
+                                        <div class="toggle-slider"></div>
+                                    </div>
+                                    <span class="text-main" style="font-weight: 500;">Enabled</span>
+                                </div>
+                                <p class="settings-helper">When disabled, the firewall operates in monitor-only mode (logs threats but does not drop packets).</p>
+                            </div>
+                            
+                            <div class="settings-form-group">
+                                <label class="settings-label">Machine Learning Anomaly Detection</label>
+                                <div class="toggle-container">
+                                    <div class="toggle-switch active">
+                                        <div class="toggle-slider"></div>
+                                    </div>
+                                    <span class="text-main" style="font-weight: 500;">Enabled</span>
+                                </div>
+                                <p class="settings-helper">Uses Isolation Forest models to detect zero-day traffic anomalies.</p>
+                            </div>
+
+                            <div class="settings-form-group">
+                                <label class="settings-label">API Rate Limit (Requests/Min)</label>
+                                <input type="number" class="settings-input" value="100">
+                                <p class="settings-helper">Maximum API requests allowed per minute from the dashboard.</p>
+                            </div>
+                            
+                            <div class="settings-form-group">
+                                <label class="settings-label">Threat Intel API Key (AbuseIPDB)</label>
+                                <input type="password" class="settings-input" value="************************">
+                                <p class="settings-helper">Used for enriching IP reputation scores. Leave blank to disable.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </main>
+
+            <!-- Bottombar -->
+            <footer class="bottombar">
+                <div class="footer-content">
+                    <span>&copy; 2026 Personal Firewall Dashboard. All rights reserved.</span>
+                    <div class="footer-links">
+                        <a href="#">Documentation</a>
+                        <a href="#">Support</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script>
+        // Simple JS for toggle switches in settings page
+        document.querySelectorAll('.toggle-switch').forEach(switchEl => {
+            switchEl.addEventListener('click', () => {
+                switchEl.classList.toggle('active');
+                const label = switchEl.nextElementSibling;
+                if(switchEl.classList.contains('active')) {
+                    label.innerText = 'Enabled';
+                } else {
+                    label.innerText = 'Disabled';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
