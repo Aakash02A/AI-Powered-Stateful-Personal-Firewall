@@ -30,6 +30,10 @@ jobs:
     - name: Run Tests with Coverage
       run: |
         cd backend && pytest tests/ --cov=firewall --cov=api --cov-report=xml
+
+    - name: Validate rule, network, and ML detection tests
+      run: |
+        cd backend && pytest tests/test_rule_engine.py tests/attack_validation/ -v
         
     - name: Security Scan (Bandit)
       run: |
@@ -51,29 +55,28 @@ jobs:
 
   frontend-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
       with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build
-      run: npm run build
+        python-version: "3.11"
+
+    - name: Run static UI tests
+      run: python frontend/test_static_site.py
+
+    - name: Validate dashboard JavaScript
+      run: node --check frontend/app.js
 
   docker:
     runs-on: ubuntu-latest
     needs: test
     steps:
     - uses: actions/checkout@v4
-    - name: Build Docker Image
-      run: docker build -t ai-firewall-test .
+    - name: Validate compose configuration
+      run: docker compose config --quiet
+    - name: Build backend image
+      run: docker build -t ai-firewall-backend-test ./backend
+    - name: Build frontend image
+      run: docker build -t ai-firewall-frontend-test ./frontend

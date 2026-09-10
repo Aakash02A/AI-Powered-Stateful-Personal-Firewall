@@ -2,6 +2,7 @@ import json
 import logging
 import warnings
 from pathlib import Path
+from typing import Optional
 
 import joblib
 
@@ -12,8 +13,12 @@ from firewall.models import Connection
 
 
 class MLAnomalyDetector:
-    def __init__(self, model_dir: str = "ml/models"):
-        self.model_dir = Path(model_dir)
+    def __init__(self, model_dir: Optional[str] = None):
+        self.model_dir = (
+            Path(model_dir)
+            if model_dir is not None
+            else Path(__file__).resolve().parent / "models"
+        )
         self.model = None
         self.scaler = None
         self.feature_schema = None

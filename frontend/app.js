@@ -1,6 +1,7 @@
 // Minimalist API fetching for Firewall Dashboard
 const API_BASE = 'http://localhost:8000/api/v1';
 const WS_URL = 'ws://localhost:8000/api/v1/ws';
+const API_KEY = 'default_dev_key'; // Update this if backend .env uses a different key
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchStats();
@@ -16,9 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
 async function fetchStats() {
     try {
         // Analytics endpoint provides general stats
-        const res = await fetch(`${API_BASE}/analytics/dashboard`);
+        const res = await fetch(`${API_BASE}/stats`, { headers: { 'X-API-Key': API_KEY } });
         if (!res.ok) throw new Error('API Error');
-        const data = await res.json();
+        const json = await res.json();
+        const data = json.data || {};
         
         document.getElementById('stat-connections').innerText = data.active_connections || '0';
         document.getElementById('stat-threat').innerText = data.average_threat_score?.toFixed(1) || '0.0';
@@ -33,9 +35,10 @@ async function fetchStats() {
 
 async function fetchAlerts() {
     try {
-        const res = await fetch(`${API_BASE}/logs/alerts?limit=10`);
+        const res = await fetch(`${API_BASE}/logs/alerts?limit=10`, { headers: { 'X-API-Key': API_KEY } });
         if (!res.ok) throw new Error('API Error');
-        const alerts = await res.json();
+        const responseData = await res.json();
+        const alerts = responseData.data || [];
         
         const tbody = document.getElementById('alerts-table-body');
         tbody.innerHTML = '';
@@ -56,9 +59,9 @@ async function fetchAlerts() {
             tr.innerHTML = `
                 <td>${new Date(alert.timestamp).toLocaleTimeString()}</td>
                 <td><span class="badge ${badgeClass}">${alert.severity}</span></td>
-                <td>${alert.source_ip || '-'}</td>
-                <td>${alert.dest_ip || '-'}</td>
-                <td>${alert.message}</td>
+                <td>${alert.src_ip || '-'}</td>
+                <td>${alert.dst_ip || '-'}</td>
+                <td>${alert.description || '-'}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -70,7 +73,7 @@ async function fetchAlerts() {
 
 function setupWebSocket() {
     const statusBadge = document.getElementById('connection-status').querySelector('.badge');
-    const ws = new WebSocket(WS_URL);
+    const ws = new WebSocket(`${WS_URL}/stream?api_key=${API_KEY}`);
     
     ws.onopen = () => {
         statusBadge.className = 'badge bg-success';
