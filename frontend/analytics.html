@@ -84,7 +84,7 @@
                     <h2>Analytics & Insights</h2>
                 </div>
                 <div class="topbar-actions">
-                    <button class="btn btn-outline">
+                    <button class="btn btn-outline" id="analytics-refresh-btn">
                         <i class="fa-regular fa-calendar"></i> Last 7 Days
                     </button>
                     <div class="notifications">
@@ -102,8 +102,8 @@
                             <h3 class="module-title">Network Traffic Overview</h3>
                         </div>
                         <div class="module-body">
-                            <div class="chart-placeholder">
-                                <span><i class="fa-solid fa-chart-line fa-2x mb-2 text-muted"></i><br>Traffic Chart Visualization</span>
+                            <div class="chart-placeholder" id="traffic-chart">
+                                <span><i class="fa-solid fa-chart-line fa-2x mb-2 text-muted"></i><br>No traffic data available</span>
                             </div>
                         </div>
                     </div>
@@ -114,8 +114,8 @@
                             <h3 class="module-title">Threat Categories</h3>
                         </div>
                         <div class="module-body">
-                            <div class="chart-placeholder">
-                                <span><i class="fa-solid fa-chart-pie fa-2x mb-2 text-muted"></i><br>Distribution Pie Chart</span>
+                            <div class="chart-placeholder" id="threat-chart">
+                                <span><i class="fa-solid fa-chart-pie fa-2x mb-2 text-muted"></i><br>No threat data available</span>
                             </div>
                         </div>
                     </div>
@@ -126,23 +126,8 @@
                             <h3 class="module-title">Top Blocked Source IPs</h3>
                         </div>
                         <div class="module-body">
-                            <div class="progress-bar-container">
-                                <div class="progress-item">
-                                    <div class="progress-label"><span>192.168.1.105</span> <span>43%</span></div>
-                                    <div class="progress-track"><div class="progress-fill" style="width: 43%; background: var(--danger)"></div></div>
-                                </div>
-                                <div class="progress-item">
-                                    <div class="progress-label"><span>104.21.44.11</span> <span>28%</span></div>
-                                    <div class="progress-track"><div class="progress-fill" style="width: 28%; background: var(--warning)"></div></div>
-                                </div>
-                                <div class="progress-item">
-                                    <div class="progress-label"><span>45.33.32.156</span> <span>15%</span></div>
-                                    <div class="progress-track"><div class="progress-fill" style="width: 15%; background: var(--primary)"></div></div>
-                                </div>
-                                <div class="progress-item">
-                                    <div class="progress-label"><span>Other</span> <span>14%</span></div>
-                                    <div class="progress-track"><div class="progress-fill" style="width: 14%; background: var(--text-muted)"></div></div>
-                                </div>
+                            <div class="progress-bar-container" id="blocked-sources">
+                                <p class="text-muted">Loading live data...</p>
                             </div>
                         </div>
                     </div>
@@ -153,19 +138,8 @@
                             <h3 class="module-title">Protocol Breakdown</h3>
                         </div>
                         <div class="module-body">
-                            <div class="progress-bar-container">
-                                <div class="progress-item">
-                                    <div class="progress-label"><span>TCP</span> <span>75%</span></div>
-                                    <div class="progress-track"><div class="progress-fill" style="width: 75%;"></div></div>
-                                </div>
-                                <div class="progress-item">
-                                    <div class="progress-label"><span>UDP</span> <span>20%</span></div>
-                                    <div class="progress-track"><div class="progress-fill" style="width: 20%;"></div></div>
-                                </div>
-                                <div class="progress-item">
-                                    <div class="progress-label"><span>ICMP</span> <span>5%</span></div>
-                                    <div class="progress-track"><div class="progress-fill" style="width: 5%;"></div></div>
-                                </div>
+                            <div class="progress-bar-container" id="protocol-breakdown">
+                                <p class="text-muted">Loading live data...</p>
                             </div>
                         </div>
                     </div>
@@ -184,5 +158,6 @@
             </footer>
         </div>
     </div>
+    <script src="app.js?v=20260910"></script>
 </body>
 </html>

@@ -2,12 +2,15 @@ import uuid
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from api.security import get_api_key
 from pydantic import BaseModel
 
 import firewall.cli as fw_cli
 from firewall.models import FirewallRule
 
-router = APIRouter(prefix="/api/v1/rules", tags=["rules"])
+router = APIRouter(
+    prefix="/api/v1/rules", tags=["rules"], dependencies=[Depends(get_api_key)]
+)
 
 
 class RuleCreateUpdate(BaseModel):

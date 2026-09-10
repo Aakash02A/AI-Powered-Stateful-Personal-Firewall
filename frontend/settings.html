@@ -113,7 +113,7 @@
                     <h2>Configuration Settings</h2>
                 </div>
                 <div class="topbar-actions">
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" id="save-settings-btn">
                         <i class="fa-solid fa-floppy-disk"></i> Save Changes
                     </button>
                     <div class="notifications">
@@ -134,10 +134,10 @@
                             <div class="settings-form-group">
                                 <label class="settings-label">Active Blocking Mode</label>
                                 <div class="toggle-container">
-                                    <div class="toggle-switch active">
+                                    <div class="toggle-switch" id="blocking-toggle" role="switch" tabindex="0" aria-checked="false">
                                         <div class="toggle-slider"></div>
                                     </div>
-                                    <span class="text-main" style="font-weight: 500;">Enabled</span>
+                                    <span class="text-main" id="blocking-status" style="font-weight: 500;">Loading...</span>
                                 </div>
                                 <p class="settings-helper">When disabled, the firewall operates in monitor-only mode (logs threats but does not drop packets).</p>
                             </div>
@@ -145,24 +145,24 @@
                             <div class="settings-form-group">
                                 <label class="settings-label">Machine Learning Anomaly Detection</label>
                                 <div class="toggle-container">
-                                    <div class="toggle-switch active">
+                                    <div class="toggle-switch active" id="ml-toggle" role="switch" tabindex="0" aria-checked="true">
                                         <div class="toggle-slider"></div>
                                     </div>
-                                    <span class="text-main" style="font-weight: 500;">Enabled</span>
+                                    <span class="text-main" id="ml-status" style="font-weight: 500;">Loading...</span>
                                 </div>
                                 <p class="settings-helper">Uses Isolation Forest models to detect zero-day traffic anomalies.</p>
                             </div>
 
                             <div class="settings-form-group">
                                 <label class="settings-label">API Rate Limit (Requests/Min)</label>
-                                <input type="number" class="settings-input" value="100">
+                                <input type="text" class="settings-input" id="rate-limit" value="Loading..." readonly>
                                 <p class="settings-helper">Maximum API requests allowed per minute from the dashboard.</p>
                             </div>
                             
                             <div class="settings-form-group">
                                 <label class="settings-label">Threat Intel API Key (AbuseIPDB)</label>
-                                <input type="password" class="settings-input" value="************************">
-                                <p class="settings-helper">Used for enriching IP reputation scores. Leave blank to disable.</p>
+                                <input type="text" class="settings-input" id="threat-intel-status" value="Loading..." readonly>
+                                <p class="settings-helper">Only configuration status is shown. Secret values are never sent to the dashboard.</p>
                             </div>
                         </div>
 
@@ -183,19 +183,6 @@
         </div>
     </div>
     
-    <script>
-        // Simple JS for toggle switches in settings page
-        document.querySelectorAll('.toggle-switch').forEach(switchEl => {
-            switchEl.addEventListener('click', () => {
-                switchEl.classList.toggle('active');
-                const label = switchEl.nextElementSibling;
-                if(switchEl.classList.contains('active')) {
-                    label.innerText = 'Enabled';
-                } else {
-                    label.innerText = 'Disabled';
-                }
-            });
-        });
-    </script>
+    <script src="app.js?v=20260910"></script>
 </body>
 </html>

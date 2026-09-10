@@ -78,8 +78,8 @@
             <!-- Main Content Area -->
             <main class="content">
                 <div class="filter-bar">
-                    <input type="text" class="filter-input" placeholder="Search IP or event...">
-                    <select class="filter-select">
+                    <input type="text" class="filter-input" id="alert-search" placeholder="Search IP or event...">
+                    <select class="filter-select" id="severity-filter">
                         <option value="">All Severities</option>
                         <option value="high">High</option>
                         <option value="medium">Medium</option>
@@ -90,7 +90,7 @@
                         <option value="7days">Last 7 Days</option>
                         <option value="30days">Last 30 Days</option>
                     </select>
-                    <button class="btn btn-outline"><i class="fa-solid fa-download"></i> Export</button>
+                    <button class="btn btn-outline" id="export-alerts-btn"><i class="fa-solid fa-download"></i> Export</button>
                 </div>
 
                 <div class="module-card full-width">
@@ -106,31 +106,8 @@
                                     <th>Action Taken</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>2026-09-10 00:15:22</td>
-                                    <td><span class="badge bg-danger">High</span></td>
-                                    <td>192.168.1.105</td>
-                                    <td>8.8.8.8</td>
-                                    <td>Port Scan Detected (Multiple SYN packets)</td>
-                                    <td><span class="badge badge-secondary">Blocked</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-09-10 00:12:05</td>
-                                    <td><span class="badge bg-warning">Medium</span></td>
-                                    <td>10.0.0.50</td>
-                                    <td>104.21.44.11</td>
-                                    <td>Unusual Traffic Volume (Anomaly Score: 0.85)</td>
-                                    <td><span class="badge badge-secondary">Logged</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-09-10 00:08:41</td>
-                                    <td><span class="badge bg-success">Low</span></td>
-                                    <td>192.168.1.5</td>
-                                    <td>1.1.1.1</td>
-                                    <td>ICMP Ping Request</td>
-                                    <td><span class="badge badge-secondary">Allowed</span></td>
-                                </tr>
+                            <tbody id="logs-table-body">
+                                <tr><td colspan="6" class="empty-state">Loading live alerts...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -149,5 +126,6 @@
             </footer>
         </div>
     </div>
+    <script src="app.js?v=20260910"></script>
 </body>
 </html>

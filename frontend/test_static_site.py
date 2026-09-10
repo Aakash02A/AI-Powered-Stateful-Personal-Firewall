@@ -25,7 +25,7 @@ def test_all_dashboard_pages_and_shared_assets_exist():
 
 def test_dashboard_script_is_loaded_by_main_page():
     html = (FRONTEND_DIR / "index.html").read_text(encoding="utf-8")
-    assert '<script src="app.js"></script>' in html
+    assert '<script src="app.js?v=' in html
     assert (FRONTEND_DIR / "app.js").is_file()
 
 

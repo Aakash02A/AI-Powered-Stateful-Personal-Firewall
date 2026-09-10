@@ -71,7 +71,7 @@
             <main class="content">
                 <div class="rules-actions">
                     <p class="text-muted">Manage your firewall inbound and outbound traffic rules.</p>
-                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add New Rule</button>
+                    <button class="btn btn-primary" id="add-rule-btn"><i class="fa-solid fa-plus"></i> Add New Rule</button>
                 </div>
 
                 <div class="module-card full-width">
@@ -88,43 +88,8 @@
                                     <th>Options</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td><span class="rule-status active"><i class="fa-solid fa-circle fa-2xs"></i> Active</span></td>
-                                    <td>Allow Web Traffic</td>
-                                    <td><span class="badge badge-success">Allow</span></td>
-                                    <td>TCP</td>
-                                    <td>80, 443</td>
-                                    <td>Outbound</td>
-                                    <td>
-                                        <button class="btn btn-outline"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn btn-outline text-danger"><i class="fa-solid fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="rule-status active"><i class="fa-solid fa-circle fa-2xs"></i> Active</span></td>
-                                    <td>Block Malicious Subnet</td>
-                                    <td><span class="badge badge-danger">Block</span></td>
-                                    <td>Any</td>
-                                    <td>Any</td>
-                                    <td>Inbound</td>
-                                    <td>
-                                        <button class="btn btn-outline"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn btn-outline text-danger"><i class="fa-solid fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="rule-status inactive"><i class="fa-solid fa-circle fa-2xs"></i> Disabled</span></td>
-                                    <td>Allow SSH (Local)</td>
-                                    <td><span class="badge badge-success">Allow</span></td>
-                                    <td>TCP</td>
-                                    <td>22</td>
-                                    <td>Inbound</td>
-                                    <td>
-                                        <button class="btn btn-outline"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="btn btn-outline text-danger"><i class="fa-solid fa-trash"></i></button>
-                                    </td>
-                                </tr>
+                            <tbody id="rules-table-body">
+                                <tr><td colspan="7" class="empty-state">Loading live rules...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -143,5 +108,6 @@
             </footer>
         </div>
     </div>
+    <script src="app.js?v=20260910"></script>
 </body>
 </html>

@@ -19,6 +19,17 @@ def test_authorized_request():
     assert response.status_code == 200
 
 
+def test_settings_are_authenticated_and_return_runtime_configuration():
+    response = client.get("/api/v1/settings", headers={"X-API-Key": settings.API_KEY})
+    assert response.status_code == 200
+    assert "monitor_only" in response.json()["data"]
+
+
+def test_rules_require_authentication():
+    response = client.get("/api/v1/rules/")
+    assert response.status_code in [401, 403]
+
+
 def test_invalid_parameters():
     # limit out of bounds (less than 1)
     response = client.get(

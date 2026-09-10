@@ -17,8 +17,8 @@ db = FirewallDatabase(db_path=settings.DATABASE_URL)
 @router.get("/status")
 def get_ml_status():
     """Returns ML model status and readiness."""
-    model_path = Path("ml/models/anomaly_detector_v1.0.joblib")
-    scaler_path = Path("ml/models/scaler_v1.0.joblib")
+    model_path = Path(__file__).resolve().parents[2] / "ml" / "models" / "anomaly_detector_v1.0.joblib"
+    scaler_path = model_path.with_name("scaler_v1.0.joblib")
 
     if model_path.exists():
 
@@ -28,10 +28,10 @@ def get_ml_status():
             "model_path": str(model_path),
             "scaler_path": str(scaler_path) if scaler_path.exists() else None,
             "status": "ready",
-            "last_prediction_timestamp": datetime.now(timezone.utc).isoformat(),
-            "total_connections_evaluated": 1847,
-            "total_anomalies_detected": 23,
-            "uptime_seconds": 3600,
+            "last_prediction_timestamp": None,
+            "total_connections_evaluated": None,
+            "total_anomalies_detected": len(db.query_alerts(alert_type="ml_anomaly", limit=10000)),
+            "uptime_seconds": None,
         }
     else:
         return {
@@ -57,20 +57,20 @@ def get_ml_metrics():
     return {
         "detection_metrics": {
             "total_alerts": total_alerts,
-            "detection_rate": 0.87,
-            "false_positive_rate": 0.032,
-            "true_positive_rate": 0.94,
+            "detection_rate": None,
+            "false_positive_rate": None,
+            "true_positive_rate": None,
         },
         "performance": {
-            "average_latency_ms": 12.5,
-            "max_latency_ms": 45.2,
-            "min_latency_ms": 8.1,
-            "throughput_per_second": 79.5,
+            "average_latency_ms": None,
+            "max_latency_ms": None,
+            "min_latency_ms": None,
+            "throughput_per_second": None,
         },
         "model_info": {
-            "training_date": "2026-06-20T10:30:00Z",
-            "baseline_hours": 48,
-            "training_samples": 288,
+            "training_date": None,
+            "baseline_hours": None,
+            "training_samples": None,
         },
     }
 
