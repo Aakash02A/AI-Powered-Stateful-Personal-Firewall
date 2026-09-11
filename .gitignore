@@ -16,3 +16,6 @@ build/
 doc
 data/*.pcapng
 ml/data/*.csv
+
+# Temporary files generated during testing
+test-artifacts/

@@ -155,6 +155,23 @@ If you prefer manual configuration:
    ```
    The application will serve both the API and the built frontend at `http://127.0.0.1:8000`
 
+### Live Smoke Test
+
+After starting the backend and dashboard, run the read-only live test from the project root:
+
+```powershell
+$env:API_KEY="your_api_key"
+python scripts/live_smoke_test.py
+```
+
+The test checks API health, authenticated database-backed endpoints, all dashboard pages, and WebSocket ping/pong. It does not create or modify firewall data. For a non-default deployment:
+
+```powershell
+python scripts/live_smoke_test.py --api http://127.0.0.1:8001 --ui http://127.0.0.1:5173
+```
+
+Use `--skip-websocket` when the deployment intentionally does not expose WebSockets.
+
 ### Docker Deployment
 
 ```bash
